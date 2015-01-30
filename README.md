@@ -1,18 +1,18 @@
-# Dorv
+# Catscope
 
-Dorv is an on-demand web-based file browser.
+Catscope is an on-demand web-based file browser.
 
 ## Installation
 
-    $ gem install dorv
+    $ gem install catscope
 
 ## Usage
 
-    dorv
+    catscope
 
 ## Contributing
 
-1. Fork it ( https://github.com/hayamiz/dorv/fork )
+1. Fork it ( https://github.com/hayamiz/catscope/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

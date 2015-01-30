@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+# coding: utf-8
+
+require File.expand_path("../../lib/catscope", __FILE__)
+exit(Catscope::CLI.new.run(ARGV.dup))

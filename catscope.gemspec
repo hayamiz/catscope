@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'dorv/version'
+require 'catscope/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "dorv"
-  spec.version       = Dorv::VERSION
+  spec.name          = "catscope"
+  spec.version       = Catscope::VERSION
   spec.authors       = ["Yuto Hayamizu"]
   spec.email         = ["y.hayamizu@gmail.com"]
   spec.summary       = "On-demand web-based file browser"
-  spec.description   = "Dorv is an on-demand web-based file browser."
-  spec.homepage      = "http://github.com/hayamiz/dorv/"
+  spec.description   = "Catscope is an on-demand web-based file browser."
+  spec.homepage      = "http://github.com/hayamiz/catscope/"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
