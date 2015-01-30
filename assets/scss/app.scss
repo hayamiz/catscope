@@ -38,3 +38,15 @@
 //   "foundation/components/type",
 //   "foundation/components/offcanvas",
 //   "foundation/components/visibility";
+
+
+a.js-filelist-dir {
+  padding-left: 20px;
+  background-image: url("/assets/img/folder.png");
+  background-repeat: no-repeat;
+}
+a.js-filelist-file {
+  padding-left: 20px;
+  background-image: url("/assets/img/page_white.png");
+  background-repeat: no-repeat;
+}

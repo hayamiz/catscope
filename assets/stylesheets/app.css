@@ -9098,3 +9098,16 @@ th.hide-for-touch {
     display: table-cell !important;
   }
 }
+/* line 43, ../scss/app.scss */
+a.js-filelist-dir {
+  padding-left: 20px;
+  background-image: url("/assets/img/folder.png");
+  background-repeat: no-repeat;
+}
+
+/* line 48, ../scss/app.scss */
+a.js-filelist-file {
+  padding-left: 20px;
+  background-image: url("/assets/img/page_white.png");
+  background-repeat: no-repeat;
+}
