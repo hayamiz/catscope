@@ -9111,3 +9111,49 @@ a.js-filelist-file {
   background-image: url("/assets/img/page_white.png");
   background-repeat: no-repeat;
 }
+
+/* preview window elements */
+/* line 55, ../scss/app.scss */
+div.js-pw-window {
+  position: absolute;
+  display: block;
+  border-color: #b6edff;
+  background-color: white;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.4);
+  margin: 0;
+  padding: 0;
+}
+
+/* line 65, ../scss/app.scss */
+div.js-pw-title {
+  background-color: #008CBA;
+  height: 25px;
+  margin: 0;
+}
+
+/* line 70, ../scss/app.scss */
+h3.js-pw-title {
+  display: inline;
+  font-size: 15px;
+  padding: 0 10px;
+  color: white;
+}
+
+/* line 76, ../scss/app.scss */
+a.js-pw-close {
+  display: inline;
+  color: white;
+}
+
+/* line 81, ../scss/app.scss */
+div.js-pw-content {
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+}
+
+/* line 86, ../scss/app.scss */
+img.js-pw-content {
+  max-width: 100%;
+  max-height: 100%;
+}

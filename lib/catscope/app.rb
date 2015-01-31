@@ -33,27 +33,42 @@ class App < Sinatra::Base
     js_compression :jsmin
   end
 
+  helpers do
+    def type_by_path(path)
+      name = File.basename(path)
+      if name =~ /\.([a-z0-9]+)$/
+        ext = $~[1]
+      else
+        ext = nil
+      end
+
+      case ext
+      when /^jpe?g$/i
+        return "image/jpeg"
+      when /^png$/i
+        return "image/png"
+      else
+        return "text/plain"
+      end
+    end
+  end
+
   get('/') do
     erb :index
   end
 
   get('/file/*') do
     path = File.expand_path(params[:splat][0].gsub(/^\//, ""), TOP_DIR.to_s)
-    name = File.basename(path)
-    if name =~ /\.([a-z0-9]+)$/
-      ext = $~[1]
-    else
-      ext = nil
-    end
 
-    case ext
-    when /^jpe?g$/i
-      content_type "image/jpeg"
-    when /^png$/i
-      content_type "image/png"
-    else
-      content_type "text/plain"
-    end
+    content_type type_by_path(path)
+
+    File.open(path)
+  end
+
+  get('/preview/*') do
+    path = File.expand_path(params[:splat][0].gsub(/^\//, ""), TOP_DIR.to_s)
+
+    content_type type_by_path(path)
 
     File.open(path)
   end
