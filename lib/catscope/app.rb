@@ -2,6 +2,7 @@
 
 require 'sinatra/base'
 require 'sinatra/assetpack'
+require 'sinatra/rocketio'
 require 'pathname'
 require 'json'
 
@@ -10,6 +11,11 @@ module Catscope
 class App < Sinatra::Base
   TOP_DIR = Pathname.new(Dir.pwd).realpath
   register Sinatra::AssetPack
+  register Sinatra::RocketIO
+
+  set :server, :thin
+  set :rocketio, :websocket => false, :comet => true
+  set :cometio, :timeout => 120, :post_interval => 2, :allow_crossdomain => false
 
   assets do
     serve '/assets/img', from: File.expand_path('../../../assets/img', __FILE__)
@@ -23,7 +29,8 @@ class App < Sinatra::Base
 
     js :libs, [
                '/assets/bower_components/jquery/dist/jquery.js',
-               '/assets/bower_components/foundation/js/foundation.js'
+               '/assets/bower_components/foundation/js/foundation.js',
+               '/assets/bower_components/jquery-ui/jquery-ui.min.js'
               ]
 
     js :application, [
@@ -47,9 +54,59 @@ class App < Sinatra::Base
         return "image/jpeg"
       when /^png$/i
         return "image/png"
+      when /^(eps|svg)$/i # will be converted to png
+        return "image/png"
       else
         return "text/plain"
       end
+    end
+  end
+
+  io = Sinatra::RocketIO
+  @@watching_files = []
+  EM.kqueue = true if EM.kqueue?
+
+  io.on :start do
+  end
+
+  module FileChangePusher
+    def file_modified
+      puts("file_modified path: #{path}")
+      Sinatra::RocketIO.push :file_modified, path
+    end
+
+    def file_moved
+      puts("file_moved path: #{path}")
+      Sinatra::RocketIO.push :file_moved, path
+    end
+
+    def file_deleted
+      puts("file_deleted path: #{path}")
+      Sinatra::RocketIO.push :file_deleted, path
+      if File.exists?(path)
+        EM.watch_file(path, FileChangePusher)
+        puts("still exists")
+      end
+    end
+
+    def unbind
+      puts("unbind #{path}")
+    end
+  end
+
+  io.on :open_file do |data, client|
+    puts("open_file: path = #{data}, client = #{client}" )
+    if @@watching_files.include?(data)
+      @@watching_files.push(data)
+    end
+
+    EM.watch_file(data, FileChangePusher)
+  end
+
+  io.on :close_file do |data, client|
+    puts("close_file: path = #{data}, client = #{client}" )
+    if @@watching_files.include?(data)
+      @@watching_files.delete(data)
     end
   end
 
@@ -70,7 +127,20 @@ class App < Sinatra::Base
 
     content_type type_by_path(path)
 
-    File.open(path)
+    if path =~ /\.(eps|svg)$/
+      out = IO.popen("convert \"#{path}\" png:-")
+      puts("convert #{path} to png")
+    else
+      out = File.open(path)
+    end
+
+    out
+  end
+
+  get('/save/*') do
+    path = File.expand_path(params[:splat][0].gsub(/^\//, ""), TOP_DIR.to_s)
+
+    send_file(path)
   end
 
   # API for filelist
@@ -86,7 +156,7 @@ class App < Sinatra::Base
         entry_pathname = Pathname.new(File.expand_path(name, path))
         entry = {
           :name => name,
-          :path => "/" + entry_pathname.relative_path_from(TOP_DIR).to_s
+          :path => entry_pathname.relative_path_from(TOP_DIR).to_s
         }
         if File.directory?(name)
           entry[:type] = :dir

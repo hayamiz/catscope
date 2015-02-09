@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Catscope</title>
     <link rel="stylesheet" href="/assets/stylesheets/app.css" />
+    <link rel="stylesheet" href="/assets/bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css" />
     <%= js :modernizr %>
   </head>
   <body>
   <%= yield %>
 
   <%= js :libs %>
+  <script src="<%= rocketio_js %>"></script>
   <%= js :application %>
   </body>
 </html>

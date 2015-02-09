@@ -2,8 +2,10 @@
 // Documentation can be found at: http://foundation.zurb.com/docs
 $(document).foundation();
 
+var io = new RocketIO().connect();
+
 function filelist_expand_dir(entryElem, container) {
-    $.getJSON("/api/lsdir" + entryElem.dataset.path,
+    $.getJSON("/api/lsdir/" + entryElem.dataset.path,
 	      function(jsonData, status, jqxhr) {
 		  container.empty()
 		  for (var i = 0; i < jsonData.length; i++) {
@@ -24,7 +26,14 @@ function filelist_expand_dir(entryElem, container) {
 						   wm.create(e.target.dataset.path);
 					       }
 					   }});
+		      var save_link = $('<a>', {href: "/save/" + entry.path})
+		      save_link.append($('<img>', {src: "/assets/img/disk.png"}));
+
 		      elem.append(anch);
+		      if (entry.type != "dir") {
+			  elem.append("&nbsp;");
+			  elem.append(save_link);
+		      }
 		      elem.append(child_ul);
 		      container.append(elem);
 		  }
@@ -50,10 +59,22 @@ WindowManager.prototype.del = function(win) {
 	}
     }
 };
+WindowManager.prototype.set_zindex = function() {
+    for (var i = 0; i < this.windows.length; i++) {
+	this.windows[i].div_window.css('z-index', i);
+    }
+};
 WindowManager.prototype.create = function(path) {
     var new_win = new PreviewWindow(path);
     this.add(new_win);
 };
+WindowManager.prototype.reload_by_path = function(path) {
+    for (var i = 0; i < this.windows.length; i++) {
+	if (this.windows[i].path == path) {
+	    this.windows[i].reload();
+	}
+    }
+}
 
 var wm = new WindowManager();
 
@@ -61,31 +82,51 @@ function PreviewWindow(path) {
     var pw = this;
 
     this.path = path;
-    this.width = 400;
+    this.width = 600;
     this.height = 400;
 
     // create dom elements
-    this.div_window = $('<div>', {class: 'js-pw-window'});
-    this.div_title = $('<div>', {class: 'js-pw-title'});
-    this.h3_title = $('<h3>', {class: 'js-pw-title', text: this.path});
+    this.div_window = $('<div>', {class: 'js-pw-window',
+				  click: function(e) {
+				      pw.focus();
+				  }});
+    this.div_title = $('<div>', {class: 'js-pw-title',
+				 click: function(e) {
+				     pw.focus();
+				 }});
+    this.h3_title = $('<h3>', {class: 'js-pw-title',
+			       text: this.path});
     this.a_close = $('<a>', {class: 'js-pw-close',
 			     click: function(e) {
 				 pw.close();
 			     }}).append($('<img src="/assets/img/cross.png" />'));
     this.div_content = $('<div>', {class: 'js-pw-content'});
-    this.img_content = $('<img>', {class: 'js-pw-content', src: "/preview" + this.path});
 
-    this.div_window.css('top', '100px');
-    this.div_window.css('left', '100px');
+    this.content_elem = this.generate_content_elem();
+
+    this.div_window.css('left', 100 + window.scrollX + 'px');
+    this.div_window.css('top', 100 + window.scrollY + 'px');
     this.div_window.css('width', this.width + 'px');
     this.div_window.css('height', this.height + 'px');
 
     // putting things together
     this.div_title.append(this.h3_title).append(this.a_close).appendTo(this.div_window);
-    this.div_content.append(this.img_content).appendTo(this.div_window);
+    this.div_content.append(this.content_elem).appendTo(this.div_window);
     this.div_window.appendTo($('body'));
 
+    this.resize();
+
+    this.div_window.draggable();
+    this.div_window.resizable({
+	resize: function(e, ui) {
+	    pw.resize();
+	}
+    });
+
     this.manager = null;
+
+    // send event to server
+    io.push("open_file", this.path);
 
     return this;
 }
@@ -94,10 +135,66 @@ PreviewWindow.prototype.close = function() {
     if (this.manager != null) {
 	this.manager.del(this);
     }
+    io.push("close_file", this.path);
+};
+PreviewWindow.prototype.focus = function() {
+    var my_idx;
+
+    console.log("focus");
+
+    if (this.manager == null) {
+	return;
+    }
+
+    this.manager.del(this);
+    this.manager.add(this);
+    this.manager.set_zindex();
+};
+PreviewWindow.prototype.resize = function() {
+    this.width = this.div_window.width();
+    this.height = this.div_window.height();
+    this.div_content.height(this.div_window.height() - this.div_title.height());
+};
+PreviewWindow.prototype.reload = function() {
+    console.log("reload " + this.path);
+    this.content_elem.attr("src", "/preview/" + this.path + "?" + (new Date()).getTime());
+};
+PreviewWindow.prototype.generate_content_elem = function() {
+    var timehash = (new Date()).getTime().toString();
+    var src_url = "/preview/" + this.path + "?" + timehash;
+
+    if (this.path.match(/\.(jpe?g|png|eps|svg)/i)) { // images as img
+	// create off screen image first
+	var img = new Image();
+	img.onload = function() {
+	    // TODO: window resizing
+	    // alert(this.width + "x" + this.height);
+	}
+	img.src = src_url;
+
+	this.content_elem = $('<img>', {class: 'js-pw-content', src: src_url});
+    } else { // other files as text in iframe
+	this.content_elem = $('<iframe>', {class: 'js-pw-content', src: src_url});
+    }
+
+    return this.content_elem;
 };
 
 (function(){
     var filelist = $("#js-filelist");
 
     filelist_expand_dir(filelist[0], filelist);
+
+    io.on("file_modified", function(path){
+	console.log("file_modified : " + path);
+	wm.reload_by_path(path);
+    });
+    io.on("file_moved", function(path){
+	console.log("file_moved : " + path);
+	wm.reload_by_path(path);
+    });
+    io.on("file_deleted", function(path){
+	console.log("file_deleted : " + path);
+	wm.reload_by_path(path);
+    });
 })();
