@@ -7,3 +7,4 @@ class MyApp < Sinatra::Base
 end
 
 MyApp.run!
+

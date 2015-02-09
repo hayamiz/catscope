@@ -5,4 +5,3 @@ task :assets do
     sh "bundle exec compass compile"
   end
 end
-
