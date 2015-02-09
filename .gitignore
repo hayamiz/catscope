@@ -12,7 +12,7 @@
 *.o
 *.a
 mkmf.log
-/assets/bower_components/*
 /assets/.sass-cache/*
 *.DS_Store
-
+/assets/bower_components/*
+/assets/stylesheets/app.css
