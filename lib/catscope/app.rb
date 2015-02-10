@@ -192,6 +192,8 @@ class App < Sinatra::Base
 
         entry
       end
+    end.sort_by do |entry|
+      entry[:name]
     end
 
     entries.to_json
