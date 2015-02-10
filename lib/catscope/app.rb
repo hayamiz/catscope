@@ -9,7 +9,9 @@ require 'json'
 module Catscope
 
 class App < Sinatra::Base
+  EPS_MIN_PIXELS = 1024*1024 / 2
   TOP_DIR = Pathname.new(Dir.pwd).realpath
+
   register Sinatra::AssetPack
   register Sinatra::RocketIO
 
@@ -59,6 +61,18 @@ class App < Sinatra::Base
       else
         return "text/plain"
       end
+    end
+
+    def image_size(file_path)
+      unless system("which identify >/dev/null 2>&1")
+        return nil
+      end
+
+      identify_str = `identify "#{file_path}"`
+      unless identify_str =~ /\s(\d+)x(\d+)\s/
+        return nil
+      end
+      [$~[1].to_i, $~[2].to_i]
     end
   end
 
@@ -128,8 +142,19 @@ class App < Sinatra::Base
     content_type type_by_path(path)
 
     if path =~ /\.(eps|svg)$/
-      out = IO.popen("convert \"#{path}\" png:-")
-      puts("convert #{path} to png")
+      imgsize = image_size(path)
+
+      p imgsize
+
+      resize_option = ""
+      if imgsize && imgsize[0]*imgsize[1] < EPS_MIN_PIXELS
+        dpi = (72 * ((EPS_MIN_PIXELS / (imgsize[0]*imgsize[1]).to_f)) ** 0.5).to_i
+        resize_option = "-density #{dpi}"
+      end
+
+      convert_cmd = "convert #{resize_option} \"#{path}\" png:-"
+      out = IO.popen(convert_cmd)
+      puts(convert_cmd)
     else
       out = File.open(path)
     end
