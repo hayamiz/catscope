@@ -4,6 +4,23 @@ $(document).foundation();
 
 var io = new RocketIO().connect();
 
+function __filelist_click_handler_builder(jq_child_ul) {
+    return function(e){
+	if (e.target.dataset.type == "dir") {
+	    if (e.target.dataset.opened == "false") {
+		e.target.dataset.opened = "true";
+		filelist_expand_dir(e.target, $(e.target.nextSibling));
+	    } else {
+		e.target.dataset.opened = "false";
+		jq_child_ul.empty();
+	    }
+	} else {
+	    // filelist_open_file(e.target.dataset.path);
+	    wm.create(e.target.dataset.path);
+	}
+    };
+}
+
 function filelist_expand_dir(entryElem, container) {
     $.getJSON("/api/lsdir/" + entryElem.dataset.path,
 	      function(jsonData, status, jqxhr) {
@@ -16,16 +33,10 @@ function filelist_expand_dir(entryElem, container) {
 					   "data-path": entry.path,
 					   "data-type": entry.type,
 					   "data-name": entry.name,
+					   "data-opened": "false",
 					   text: entry.name,
 					   class: "js-filelist-" + entry.type,
-					   click: function(e){
-					       if (e.target.dataset.type == "dir") {
-						   filelist_expand_dir(e.target, $(e.target.nextSibling));
-					       } else {
-						   // filelist_open_file(e.target.dataset.path);
-						   wm.create(e.target.dataset.path);
-					       }
-					   }});
+					   click: __filelist_click_handler_builder(child_ul)});
 		      var save_link = $('<a>', {href: "/save/" + entry.path})
 		      save_link.append($('<img>', {src: "/assets/img/disk.png"}));
 
