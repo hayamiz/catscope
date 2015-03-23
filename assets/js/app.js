@@ -22,7 +22,6 @@ function __filelist_click_handler_builder(jq_child_ul) {
 		    filelist_min_height = filelist.height();
 		}
 		filelist.css("min-height", filelist_min_height);
-		console.log("filelist_min_height: " + filelist_min_height);
 	    }, 100);
 	} else {
 	    // filelist_open_file(e.target.dataset.path);
