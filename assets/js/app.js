@@ -3,6 +3,7 @@
 $(document).foundation();
 
 var io = new RocketIO().connect();
+var filelist_min_height = 0;
 
 function __filelist_click_handler_builder(jq_child_ul) {
     return function(e){
@@ -14,6 +15,15 @@ function __filelist_click_handler_builder(jq_child_ul) {
 		e.target.dataset.opened = "false";
 		jq_child_ul.empty();
 	    }
+
+	    window.setTimeout(function(){
+		var filelist = $("#js-filelist");
+		if (filelist.height() > filelist_min_height) {
+		    filelist_min_height = filelist.height();
+		}
+		filelist.css("min-height", filelist_min_height);
+		console.log("filelist_min_height: " + filelist_min_height);
+	    }, 100);
 	} else {
 	    // filelist_open_file(e.target.dataset.path);
 	    wm.create(e.target.dataset.path);
