@@ -28,6 +28,11 @@ class CLI
     @parser.on('-e', '--env ENV', "Rack environment (default: #{@environment})") do |env|
       @environment = env
     end
+
+    @parser.on('-v', '--version') do
+      puts "Catscope version #{Catscope::VERSION}"
+      exit(true)
+    end
   end
 
   def run(argv)
