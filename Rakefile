@@ -1,10 +1,13 @@
 require "bundler/gem_tasks"
 
+task :default => :assets
+
 desc "compile assets"
 task :assets do
   Dir.chdir("assets") do
     sh "bundle exec compass compile"
   end
+  cp "./assets/bower_components/zeroclipboard/dist/ZeroClipboard.swf", "./static/"
 end
 
 desc "run 'bower update'"

@@ -73,9 +73,19 @@ h3.js-pw-title {
   padding: 0 10px;
   color: white;
 }
-a.js-pw-close {
+button.js-pw-close {
+  padding: 0;
+  margin: 0;
   display: inline;
   color: white;
+  padding-left: 10px;
+}
+button.js-pw-copy {
+  padding: 0;
+  margin: 0;
+  display: inline;
+  color: white;
+  padding-left: 10px;
 }
 
 div.js-pw-content {

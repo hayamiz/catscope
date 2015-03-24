@@ -32,7 +32,9 @@ class App < Sinatra::Base
     js :libs, [
                '/assets/bower_components/jquery/dist/jquery.js',
                '/assets/bower_components/foundation/js/foundation.js',
-               '/assets/bower_components/jquery-ui/jquery-ui.min.js'
+               '/assets/bower_components/jquery-ui/jquery-ui.min.js',
+               '/assets/bower_components/zeroclipboard/dist/ZeroClipboard.js',
+               '/assets/bower_components/alertify.js/lib/alertify.js'
               ]
 
     js :application, [
@@ -40,6 +42,11 @@ class App < Sinatra::Base
                      ]
 
     js_compression :jsmin
+
+    css :libs, [
+                '/assets/bower_components/alertify.js/themes/alertify.core.css',
+                '/assets/bower_components/alertify.js/themes/alertify.default.css'
+               ]
   end
 
   helpers do
@@ -164,6 +171,13 @@ class App < Sinatra::Base
 
   get('/save/*') do
     path = File.expand_path(params[:splat][0].gsub(/^\//, ""), TOP_DIR.to_s)
+
+    send_file(path)
+  end
+
+  get('/static/*') do
+    url_path = params[:splat][0].gsub(/^\//, "")
+    path = File.expand_path(url_path, File.expand_path("../../../static", __FILE__))
 
     send_file(path)
   end

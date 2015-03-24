@@ -16,3 +16,4 @@ mkmf.log
 *.DS_Store
 /assets/bower_components/*
 /assets/stylesheets/app.css
+/static/ZeroClipboard.swf

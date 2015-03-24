@@ -116,10 +116,12 @@ function PreviewWindow(path) {
 				 }});
     this.h3_title = $('<h3>', {class: 'js-pw-title',
 			       text: this.path});
-    this.a_close = $('<a>', {class: 'js-pw-close',
+    this.btn_close = $('<button>', {class: 'js-pw-close',
 			     click: function(e) {
 				 pw.close();
-			     }}).append($('<img src="/assets/img/cross.png" />'));
+			     }}).append($('<i class="fa fa-times-circle"></i>'));
+    this.btn_copy = $('<button>', {class: 'js-pw-copy'})
+	.append($('<i class="fa fa-clipboard"></i>'));
     this.div_content = $('<div>', {class: 'js-pw-content'});
 
     this.content_elem = this.generate_content_elem();
@@ -130,11 +132,56 @@ function PreviewWindow(path) {
     this.div_window.css('height', this.height + 'px');
 
     // putting things together
-    this.div_title.append(this.h3_title).append(this.a_close).appendTo(this.div_window);
+    this.div_title.append(this.h3_title).append(this.btn_copy)
+	.append(this.btn_close).appendTo(this.div_window);
     this.div_content.append(this.content_elem).appendTo(this.div_window);
     this.div_window.appendTo($('body'));
 
     this.resize();
+
+    var zc_client = new ZeroClipboard( this.btn_copy[0] );
+    console.log(this.btn_copy[0]);
+
+    zc_client.preview_window = this;
+    zc_client.on( "ready", function( readyEvent ) {
+	console.log( "ZeroClipboard SWF is ready!" );
+
+	zc_client.on( "aftercopy", function( event ) {
+	    // `this` === `zc_client`
+	    // `event.target` === the element that was clicked
+	    // event.target.style.display = "none";
+	    if (event.data["text/plain"] == undefined) {
+		console.log("Nothing copied.");
+	    } else {
+		alertify.success("Copied " + pw.path + " to clipboard");
+		console.log("Copied " + pw.path + " to clipboard");
+	    }
+	} );
+    } );
+
+    zc_client.on("copy", function(event) {
+	console.log("copy event fired.");
+	var clipboard = event.clipboardData;
+	clipboard.clearData();
+
+	if (this.preview_window.copyable_text != undefined &&
+	    this.preview_window.copyable_text != "") {
+	    console.log("copying " + pw.path);
+	    clipboard.setData("text/plain", this.preview_window.copyable_text);
+	} else {
+	    console.log("nothing to be copied.");
+	}
+    });
+    this.zc_client = zc_client;
+
+    // Load copyable text in case of text files
+    if (path.match(/\.(txt|tsv|csv|log)$/i)) {
+	$.get("/save/" + path, {}, function(data){
+	    console.log("loaded body:");
+	    console.log(data)
+	    pw.copyable_text = data;
+	}, "text");
+    }
 
     this.div_window.draggable();
     this.div_window.resizable({
@@ -200,6 +247,7 @@ PreviewWindow.prototype.generate_content_elem = function() {
     return this.content_elem;
 };
 
+// main entry point
 (function(){
     var filelist = $("#js-filelist");
 
