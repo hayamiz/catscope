@@ -4,6 +4,7 @@
     "private": "true",
     "dependencies": {
 	"foundation": "zurb/bower-foundation",
+	"jquery": "~2.1.0",
 	"jquery-ui": "~1.11.2",
 	"zeroclipboard": "~2.2.0",
 	"alertify.js": "~0.3.11"

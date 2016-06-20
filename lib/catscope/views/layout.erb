@@ -8,13 +8,17 @@
     <link rel="stylesheet" href="/assets/bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css" />
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <%= css :libs, :media => 'screen' %>
-    <%= js :modernizr %>
   </head>
   <body>
 
   <%= yield %>
 
-  <%= js :libs %>
+    <script src="/assets/bower_components/jquery/dist/jquery.js"></script>
+    <script src="/assets/bower_components/foundation/js/foundation.js"></script>
+    <script src="/assets/bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <script src="/assets/bower_components/zeroclipboard/dist/ZeroClipboard.js"></script>
+    <script src="/assets/bower_components/alertify.js/lib/alertify.js"></script>
+
 <script>
 // initialize zeroclipboard
 ZeroClipboard.config( { swfPath: "/static/ZeroClipboard.swf" } );
