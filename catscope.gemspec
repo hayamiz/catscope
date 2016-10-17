@@ -21,11 +21,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "thin", "~> 1.6"
+  spec.add_dependency "sinatra", "~> 1.4"
   spec.add_dependency "sinatra-rocketio", "~> 0.3"
   spec.add_dependency "sinatra-assetpack", "~> 0.3.3"
 
-  spec.add_development_dependency "bundler", "~> 1.7"
-  spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "sass", "~> 3.4.0"
-  spec.add_development_dependency "compass", "~> 1.0"
+  spec.add_development_dependency "bundler"
+  spec.add_development_dependency "rake"
+  spec.add_development_dependency "sass"
+  spec.add_development_dependency "compass"
 end
