@@ -10,7 +10,7 @@ function __filelist_click_handler_builder(jq_child_ul) {
 	if (e.target.dataset.type == "dir") {
 	    if (e.target.dataset.opened == "false") {
 		e.target.dataset.opened = "true";
-		filelist_expand_dir(e.target, $(e.target.nextSibling));
+	      filelist_expand_dir(e.target, $(e.target).parent().find('> ul'));
 	    } else {
 		e.target.dataset.opened = "false";
 		jq_child_ul.empty();
@@ -30,6 +30,23 @@ function __filelist_click_handler_builder(jq_child_ul) {
     };
 }
 
+function __filelist_dir_refresh_handler_builder(jq_child_ul) {
+  return function(e) {
+    var qTarget
+
+    if (e.target.tagName == "IMG") {
+      qTarget = $(e.target.parentElement);
+    } else {
+      $(e.target); // <a> (refresh button)
+    }
+    var eEntry = qTarget.parent().find('> a.js-entry')[0];
+
+    if (eEntry.dataset.type == "dir") {
+      filelist_expand_dir(eEntry, qTarget.parent().find('> ul'));
+    }
+  };
+}
+
 function filelist_expand_dir(entryElem, container) {
     $.getJSON("/api/lsdir/" + entryElem.dataset.path,
 	      function(jsonData, status, jqxhr) {
@@ -44,13 +61,21 @@ function filelist_expand_dir(entryElem, container) {
 					   "data-name": entry.name,
 					   "data-opened": "false",
 					   text: entry.name,
-					   class: "js-filelist-" + entry.type,
+					   class: "js-entry js-filelist-" + entry.type,
 					   click: __filelist_click_handler_builder(child_ul)});
 		      var save_link = $('<a>', {href: "/save/" + entry.path})
-		      save_link.append($('<img>', {src: "/assets/img/disk.png"}));
+		    save_link.append($('<img>', {src: "/assets/img/disk.png"}));
 
-		      elem.append(anch);
-		      if (entry.type != "dir") {
+                    var refresh_link = $('<a>',
+                                         {class: "js-refresh",
+                                          click: __filelist_dir_refresh_handler_builder(child_ul)});
+                    refresh_link.append($('<img>', {src: '/assets/img/arrow_refresh_small.png'}));
+
+		    elem.append(anch);
+                    if (entry.type == "dir") {
+                      elem.append("&nbsp;");
+                      elem.append(refresh_link);
+                    } else {
 			  elem.append("&nbsp;");
 			  elem.append(save_link);
 		      }
