@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "sinatra", "~> 1.4"
   spec.add_dependency "sinatra-rocketio", "~> 0.3"
   spec.add_dependency "sinatra-assetpack", "~> 0.3.3"
+  spec.add_dependency "tilt", "~> 1.4"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
