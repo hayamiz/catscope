@@ -1,7 +1,8 @@
 language: ruby
 install:
   - sudo apt-get update
-  - sudo apt-get install libevent-dev
+  - sudo apt-get install libevent-dev npm
+  - sudo npm install -g bower
   - bundle install
 rvm:
   - 2.0.0
