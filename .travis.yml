@@ -1,0 +1,15 @@
+language: ruby
+install:
+  - sudo apt-get update
+  - sudo apt-get install libevent-dev
+  - bundle install
+rvm:
+  - 1.9.3
+  - 2.0.0
+  - 2.1.5
+  - 2.2.0
+script:
+  - rake build
+notifications:
+  slack:
+    secure: fH8tRyxWHL60OV6QuJlzig9lCLbjfpHx8E6D2EzgQz7+/wqAxtoTUyiN7mbpEJa4hyQeZfpmMpDTnl2tHD6eI8yqjAsY4Q+jt21tCKyrKMegq9Pypd4eMP4o+DupT2mXm0K3cZ2Kgb+yP8AuJPoTy20j3kpmnDFWdqRnhgpBLC8=
