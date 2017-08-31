@@ -65,6 +65,8 @@ class App < Sinatra::Base
         return "image/png"
       when /^(eps|svg)$/i # will be converted to png
         return "image/png"
+      when /^pdf/i
+        return "application/pdf"
       else
         return "text/plain"
       end
