@@ -243,9 +243,11 @@ PreviewWindow.prototype.focus = function() {
     this.manager.set_zindex();
 };
 PreviewWindow.prototype.resize = function() {
-    this.width = this.div_window.width();
-    this.height = this.div_window.height();
-    this.div_content.height(this.div_window.height() - this.div_title.height());
+  this.width = this.div_window.width();
+  this.height = this.div_window.height();
+
+  this.div_content.height(this.div_window.height() - this.div_title.height());
+  this.h3_title.width(this.div_title.width() - this.btn_close.width() - this.btn_copy.width());
 };
 PreviewWindow.prototype.reload = function() {
     console.log("reload " + this.path);
