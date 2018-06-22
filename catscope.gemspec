@@ -22,10 +22,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "thin", "~> 1.6"
-  spec.add_dependency "sinatra", "~> 1.4"
+  spec.add_dependency "sinatra", "= 1.4.8"
+  spec.add_dependency "rack", "= 1.6.10"
   spec.add_dependency "sinatra-rocketio", "~> 0.3"
   spec.add_dependency "sinatra-assetpack", "~> 0.3.3"
-  spec.add_dependency "tilt", "~> 1.4"
+  spec.add_dependency "tilt", "= 1.4.1"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"

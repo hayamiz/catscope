@@ -1,5 +1,8 @@
 # coding: utf-8
 
+gem 'sinatra', "=1.4.8"
+gem 'rack', "=1.6.10"
+gem 'tilt', "=1.4.1"
 require 'sinatra/base'
 require 'sinatra/assetpack'
 require 'sinatra/rocketio'
