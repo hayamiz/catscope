@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    catscope (0.1.4)
+    catscope (0.1.5)
       sinatra (~> 1.4)
       sinatra-assetpack (~> 0.3.3)
       sinatra-rocketio (~> 0.3)
