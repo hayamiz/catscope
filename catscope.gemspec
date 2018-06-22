@@ -29,6 +29,6 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
-  spec.add_development_dependency "sass"
-  spec.add_development_dependency "compass"
+  spec.add_development_dependency "sass", "= 3.4.23"
+  spec.add_development_dependency "compass", "= 1.0.3"
 end
