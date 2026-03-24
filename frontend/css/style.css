@@ -1,0 +1,213 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#header {
+    background: #008CBA;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+#container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+#sidebar {
+    width: 300px;
+    background: #f5f5f5;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+    flex-shrink: 0;
+}
+
+#main {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #e0e0e0;
+}
+
+/* File list styles */
+.dir-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dir-entry {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.dir-entry:hover {
+    background: #e0e0e0;
+}
+
+.dir-entry .icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.dir-entry .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+}
+
+.dir-entry .action-btn {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    opacity: 0.5;
+    padding: 2px;
+    flex-shrink: 0;
+}
+
+.dir-entry .action-btn:hover {
+    opacity: 1;
+}
+
+.dir-entry .action-btn img {
+    width: 100%;
+    height: 100%;
+}
+
+.dir-children {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Preview window styles */
+.preview-window {
+    position: absolute;
+    width: 600px;
+    height: 400px;
+    background: #ffffff;
+    border: 2px solid #b6edff;
+    box-shadow: 0 0 5px 3px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-titlebar {
+    background: #008CBA;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    cursor: move;
+    flex-shrink: 0;
+}
+
+.preview-title {
+    color: #ffffff;
+    font-size: 14px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.preview-titlebar .btn {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 2px;
+    margin-left: 4px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-titlebar .btn img {
+    width: 14px;
+    height: 14px;
+    filter: brightness(0) invert(1);
+}
+
+.preview-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #ffffff;
+}
+
+.preview-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.preview-resize {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 16px;
+    height: 16px;
+    cursor: nwse-resize;
+}
+
+.preview-error {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.preview-error a {
+    color: #008CBA;
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #5cb85c;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 100000;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+}
+
+.toast.fade-out {
+    opacity: 0;
+}

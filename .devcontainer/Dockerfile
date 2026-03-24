@@ -30,6 +30,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Playwright system dependencies for Chromium
+RUN npx playwright install-deps chromium
+
 # Adjust UID/GID of the ubuntu user to match the host user
 RUN if [ "$USER_UID" != "1000" ]; then \
         groupmod --gid $USER_GID $USERNAME \
@@ -44,6 +47,15 @@ RUN echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
 # Set GOPATH for the user
 ENV GOPATH="/home/${USERNAME}/go"
 ENV PATH="${GOPATH}/bin:${PATH}"
+
+# Install Claude Code
+RUN npm install -g @anthropic-ai/claude-code
+
+# Bedrock environment variables
+ENV CLAUDE_CODE_USE_BEDROCK=1
+ENV AWS_REGION=us-east-1
+ENV ANTHROPIC_MODEL=us.anthropic.claude-opus-4-6-v1
+ENV ANTHROPIC_DEFAULT_HAIKU_MODEL=us.anthropic.claude-haiku-4-5-20251001-v1:0
 
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
