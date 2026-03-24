@@ -61,8 +61,8 @@ go build -o catscope .
 # Run (serves current directory on http://127.0.0.1:4567)
 ./catscope
 
-# Release build (smaller binary, version injected)
-go build -ldflags="-s -w -X main.version=2.0.0" -o catscope .
+# Release build (version from VERSION file)
+go build -ldflags="-s -w -X main.version=$(cat VERSION)" -o catscope .
 ```
 
 ## Testing

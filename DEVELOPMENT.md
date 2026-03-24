@@ -54,43 +54,46 @@ Authentication is role-based. The host instance (e.g., an EC2 instance) must hav
 
 ## Versioning
 
-The version string is injected at build time via `-ldflags`:
+The canonical version number is stored in the `VERSION` file at the project root. The version string is injected at build time via `-ldflags`, reading from this file:
 
 ```bash
-go build -ldflags="-s -w -X main.version=2.0.0" -o catscope .
+go build -ldflags="-s -w -X main.version=$(cat VERSION)" -o catscope .
 ```
 
-Development builds default to `dev`. Always update [NEWS.md](NEWS.md) when preparing a release.
+Development builds (plain `go build`) default to `dev`. Always update both `VERSION` and [NEWS.md](NEWS.md) when preparing a release.
 
 ## Creating a Release
 
-1. Update `NEWS.md` with the new version's changes.
-
-2. Commit the release notes:
+1. Update `VERSION` with the new version number:
 
    ```bash
-   git add NEWS.md
-   git commit -m "Release v2.x.x"
+   echo "2.x.x" > VERSION
    ```
 
-3. Create a git tag:
+2. Add a new section to `NEWS.md` with the release changes.
+
+3. Commit and tag:
 
    ```bash
-   git tag v2.x.x
-   git push origin v2.x.x
+   VERSION=$(cat VERSION)
+   git add VERSION NEWS.md
+   git commit -m "Release v${VERSION}"
+   git tag "v${VERSION}"
+   git push origin "v${VERSION}"
    ```
 
 4. Build the release binary:
 
    ```bash
-   VERSION=2.x.x
+   VERSION=$(cat VERSION)
    GOOS=linux GOARCH=amd64 go build -ldflags="-s -w -X main.version=${VERSION}" -o catscope-linux-amd64 .
    ```
 
 5. Create the GitHub release with `gh`:
 
    ```bash
-   gh release create v${VERSION} \
+   VERSION=$(cat VERSION)
+   gh release create "v${VERSION}" \
      --title "v${VERSION}" \
      --notes-file <(sed -n "/^## v${VERSION}/,/^## v/{ /^## v${VERSION}/d; /^## v/d; p; }" NEWS.md) \
      catscope-linux-amd64

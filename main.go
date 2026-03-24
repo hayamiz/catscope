@@ -13,7 +13,7 @@ import (
 //go:embed frontend
 var frontendFS embed.FS
 
-// version is set at build time via -ldflags="-X main.version=x.y.z".
+// version is set at build time via -ldflags="-X main.version=$(cat VERSION)".
 // Defaults to "dev" for development builds.
 var version = "dev"
 
