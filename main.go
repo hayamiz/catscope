@@ -13,7 +13,9 @@ import (
 //go:embed frontend
 var frontendFS embed.FS
 
-const version = "2.0.0"
+// version is set at build time via -ldflags="-X main.version=x.y.z".
+// Defaults to "dev" for development builds.
+var version = "dev"
 
 func main() {
 	bind := flag.String("bind", "127.0.0.1", "IP address to bind to")
