@@ -1,34 +1,66 @@
-# Catscope: an on-demand web-based file browser
+# Catscope
 
-Catscope is a Sinatra-based file browser.  It helps you to make files
-accessible via web browsers.
-
-** PLASE BE CAREFUL. Catscope will cause leak of confidential data. **
+A web-based file browser for remote development servers. Run a single binary and browse files (images, PDF, SVG, text, EPS, etc.) from your web browser with real-time change notifications.
 
 ## Installation
 
-    $ gem install catscope
+```bash
+curl -fsSL https://raw.githubusercontent.com/hayamiz/catscope/master/scripts/install.sh | sh
+```
+
+This downloads the latest release binary to `~/bin/catscope`. Set `CATSCOPE_INSTALL_DIR` to change the install location.
+
+### Build from source
+
+```bash
+git clone https://github.com/hayamiz/catscope.git
+cd catscope
+go build -ldflags="-s -w -X main.version=$(cat VERSION)" -o catscope .
+```
 
 ## Usage
 
-    catscope
+```bash
+catscope
+```
 
-And open [http://localhost:4567](http://localhost:4567/) in your
-browser. You can see files in the current directory.
+Open [http://localhost:4567](http://localhost:4567/) in your browser. Files in the current directory will be browsable.
 
-By default, catscope accepts connections only from local host.  If you
-want to access from remote hosts, run catscope like this:
+### Options
 
-    catscope --bind 0.0.0.0
+| Option | Short | Default | Description |
+|---|---|---|---|
+| `--bind ADDRESS` | `-o` | `127.0.0.1` | IP address to bind to |
+| `--port PORT` | `-p` | `4567` | Port number to listen on |
+| `--version` | `-v` | — | Display version and exit |
 
-**!!BE CAREFUL!!**: this makes files accessible from any reachable
-remote hosts.  Filtering connections with firewalls or `iptables` is
-strongly recommended when you bind catscope to 0.0.0.0.
+### Binding to all interfaces
 
-## Contributing
+```bash
+catscope --bind 0.0.0.0
+```
 
-1. Fork it ( https://github.com/hayamiz/catscope/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+**WARNING**: This makes all files in the current directory accessible from any reachable host. Use firewalls or other access controls to restrict connections.
+
+## Features
+
+- **Single binary** — all frontend assets embedded, no external dependencies
+- **Directory tree** — expand/collapse with hidden file support
+- **File preview** — images (JPEG, PNG, GIF, WebP, SVG), PDF, text files, EPS (with optional ImageMagick)
+- **Draggable/resizable windows** — multiple preview windows with z-index management
+- **Live reload** — files auto-refresh when modified (WebSocket + fsnotify)
+- **Clipboard copy** — one-click copy for text file contents
+- **Download** — download any file directly from the browser
+- **Security** — path traversal prevention; localhost-only by default
+
+## Optional Dependencies
+
+- **ImageMagick** (`convert`, `identify`) — required only for EPS file preview conversion. All other features work without it.
+
+## Development
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) for dev container setup, build instructions, and release workflow.
+
+## License
+
+MIT
