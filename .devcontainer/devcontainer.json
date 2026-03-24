@@ -1,0 +1,25 @@
+{
+  "name": "Catscope Dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "USER_UID": "${localEnv:UID:1000}",
+      "USER_GID": "${localEnv:GID:1000}"
+    }
+  },
+  "remoteUser": "ubuntu",
+  "containerUser": "ubuntu",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ],
+      "settings": {
+        "go.gopath": "/home/ubuntu/go",
+        "go.toolsManagement.autoUpdate": true
+      }
+    }
+  },
+  "forwardPorts": [4567],
+  "postCreateCommand": "go version && node --version"
+}

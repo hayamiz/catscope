@@ -140,3 +140,7 @@ EPS conversion is optional. When ImageMagick is not available, return `501 Not I
 - Branch: `catscope-dev-v2`
 - Write concise commit messages in English, imperative mood (e.g., "Add WebSocket file watcher").
 - Keep commits focused — one logical change per commit.
+
+## Dev Container
+
+- When adding or changing project dependencies (system packages, Go version, Node.js version, etc.), always update `.devcontainer/Dockerfile` accordingly to keep the container environment in sync.
