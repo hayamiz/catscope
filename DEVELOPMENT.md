@@ -101,6 +101,17 @@ Development builds (plain `go build`) default to `dev`. Always update both `VERS
 
    This extracts the relevant section from `NEWS.md` as the release notes and attaches the binary.
 
+### GitHub authentication for `gh release create`
+
+`gh` requires authentication via `gh auth login`. The token (classic PAT or fine-grained PAT) must have the following permissions:
+
+| Token type | Required scope |
+|---|---|
+| Classic PAT | `repo` (Full control of private repositories) |
+| Fine-grained PAT | **Contents**: Read and write, **Metadata**: Read-only |
+
+For fine-grained PATs, the token must be scoped to the `hayamiz/catscope` repository (or the organization). The **Contents** permission covers both release creation and asset uploads.
+
 ## Using with VSCode
 
 Alternatively, open the project in VSCode and run **Dev Containers: Reopen in Container** from the command palette (`Ctrl+Shift+P`).
