@@ -235,6 +235,8 @@ All messages are sent and received in JSON format.
 |---|---|---|
 | `watch` | Relative path of the file | Sent when a preview window is opened. The server starts monitoring the file |
 | `unwatch` | Relative path of the file | Sent when a preview window is closed. The server stops monitoring the file |
+| `watch_dir` | Relative path of the directory (empty string for root) | Sent when a directory is expanded in the file tree. The server starts monitoring the directory for content changes (file creation, deletion, renaming) |
+| `unwatch_dir` | Relative path of the directory (empty string for root) | Sent when a directory is collapsed in the file tree. The server stops monitoring the directory |
 
 ### 6.4 Server → Client Messages
 
@@ -243,15 +245,19 @@ All messages are sent and received in JSON format.
 | `file_modified` | Relative path of the file | File has been modified |
 | `file_renamed` | Relative path of the file | File has been renamed |
 | `file_deleted` | Relative path of the file | File has been deleted |
+| `dir_changed` | Relative path of the directory (empty string for root) | A file or subdirectory was created, deleted, or renamed within the directory. The client should re-fetch the directory contents |
 
 ### 6.5 File Monitoring Behavior
 
 - Uses Go's `fsnotify` library (Linux: inotify, macOS: kqueue, Windows: ReadDirectoryChangesW)
 - On `watch` received: Add the file to `fsnotify` watch targets
 - On `unwatch` received: Remove from watch targets
+- On `watch_dir` received: Add the directory to `fsnotify` watch targets for directory content change monitoring
+- On `unwatch_dir` received: Remove the directory from watch targets
 - On file change event detection: Broadcast notification to all WebSocket clients watching that file
-- When multiple clients watch the same file, manage with reference counting; remove from `fsnotify` only when all clients have sent `unwatch`
-- On WebSocket connection close: Automatically treat all files watched by that connection as `unwatch`
+- On directory content change (Create, Remove, Rename events): Broadcast `dir_changed` notification to all WebSocket clients watching that directory
+- When multiple clients watch the same file or directory, manage with reference counting; remove from `fsnotify` only when all clients have sent `unwatch`/`unwatch_dir`
+- On WebSocket connection close: Automatically treat all files and directories watched by that connection as `unwatch`/`unwatch_dir`
 
 ### 6.6 Debounce
 
@@ -287,10 +293,10 @@ The main page consists of:
 - Expand state is managed via the DOM `data-opened` attribute
 
 **Entry Components**:
-- Directory: Folder icon (SVG) + directory name + refresh button
+- Directory: Folder icon (SVG) + directory name
 - File: File icon (SVG) + file name + download button
 
-**Refresh Button**: Clicking re-fetches the directory contents and updates the display.
+**Auto-Refresh**: When a directory is expanded, the client sends a `watch_dir` message to the server. When files are created, deleted, or renamed within that directory, the server sends a `dir_changed` message and the client automatically re-fetches and updates the directory contents. When the directory is collapsed, the client sends an `unwatch_dir` message.
 
 **Download Button**: Links to `/save/{path}`. Clicking downloads the file.
 
@@ -359,7 +365,7 @@ An object that manages multiple preview windows.
 
 - Establishes a WebSocket connection to `/ws` on page load
 - Auto-reconnects on disconnect (initial 1 second, then exponential backoff, max 30 seconds)
-- On reconnect, re-sends `watch` messages for all currently monitored files
+- On reconnect, re-sends `watch` messages for all currently monitored files and `watch_dir` messages for all expanded directories
 
 ### 7.7 Toast Notifications
 
@@ -454,7 +460,6 @@ catscope-v2/
 │       ├── folder.svg
 │       ├── file.svg
 │       ├── download.svg
-│       ├── refresh.svg
 │       ├── close.svg
 │       └── clipboard.svg
 ├── go.mod
@@ -500,7 +505,7 @@ All other dependencies use Go standard library only (`net/http`, `html/template`
 ### 11.2 File Operations
 
 - [ ] Directory expand/collapse works
-- [ ] Refresh button updates directory contents
+- [ ] Directory tree auto-refreshes when files are created, deleted, or renamed
 - [ ] Clicking a file opens a preview window
 - [ ] Download button downloads the file
 

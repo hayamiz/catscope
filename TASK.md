@@ -60,7 +60,10 @@
 - [x] `GET /ws` — WebSocket endpoint using `nhooyr.io/websocket`
 - [x] Handle `watch` message: add file to fsnotify watch
 - [x] Handle `unwatch` message: remove file from fsnotify watch
+- [x] Handle `watch_dir` message: add directory to fsnotify watch for content changes
+- [x] Handle `unwatch_dir` message: remove directory from fsnotify watch
 - [x] Broadcast `file_modified`, `file_renamed`, `file_deleted` events
+- [x] Broadcast `dir_changed` events for directory content changes
 - [x] Implement reference counting for watched files
 - [x] Debounce file change events (100ms per file)
 - [x] Auto-cleanup watches on WebSocket connection close
@@ -87,9 +90,9 @@
 - [x] Fetch root directory on page load via `GET /api/lsdir/`
 - [x] Directory expand/collapse on click
 - [x] Manage expand state via `data-opened` attribute
-- [x] Render directory entries: folder icon + name + refresh button
+- [x] Render directory entries: folder icon + name
 - [x] Render file entries: file icon + name + download button
-- [x] Refresh button: re-fetch directory contents
+- [x] Auto-refresh directory tree via WebSocket `watch_dir`/`dir_changed`
 - [x] Download button: link to `/save/{path}`
 
 ### 10.2 Preview Window
@@ -137,7 +140,6 @@
 - [x] `folder.svg`
 - [x] `file.svg`
 - [x] `download.svg`
-- [x] `refresh.svg`
 - [x] `close.svg`
 - [x] `clipboard.svg`
 

@@ -323,6 +323,30 @@
         });
     };
 
+    // ---- Directory Watcher ----
+    var DirWatcher = {
+        dirs: {}, // path -> { ul: element, level: number }
+
+        add: function (path, ul, level) {
+            this.dirs[path] = { ul: ul, level: level };
+        },
+
+        remove: function (path) {
+            delete this.dirs[path];
+        },
+
+        refresh: function (path) {
+            var entry = this.dirs[path];
+            if (entry) {
+                loadDirectory(path, entry.ul, entry.level);
+            }
+        },
+
+        getWatchedPaths: function () {
+            return Object.keys(this.dirs);
+        }
+    };
+
     // ---- WebSocket ----
     var WS = {
         ws: null,
@@ -336,10 +360,15 @@
 
             this.ws.onopen = function () {
                 self.reconnectDelay = 1000;
-                // Re-send watch messages
+                // Re-send watch messages for preview windows
                 var paths = WindowManager.getWatchedPaths();
                 for (var i = 0; i < paths.length; i++) {
                     self.send({ type: "watch", path: paths[i] });
+                }
+                // Re-send watch_dir messages for expanded directories
+                var dirPaths = DirWatcher.getWatchedPaths();
+                for (var i = 0; i < dirPaths.length; i++) {
+                    self.send({ type: "watch_dir", path: dirPaths[i] });
                 }
             };
 
@@ -353,6 +382,9 @@
                         break;
                     case "file_deleted":
                         WindowManager.showDeletedByPath(msg.path);
+                        break;
+                    case "dir_changed":
+                        DirWatcher.refresh(msg.path);
                         break;
                 }
             };
@@ -403,22 +435,6 @@
                         div.appendChild(icon);
                         div.appendChild(nameSpan);
 
-                        // Refresh button
-                        var refreshBtn = document.createElement("button");
-                        refreshBtn.className = "action-btn";
-                        refreshBtn.title = "Refresh";
-                        refreshBtn.innerHTML = '<img src="/assets/icons/refresh.svg" alt="Refresh">';
-                        (function (entryPath, li, lv) {
-                            refreshBtn.addEventListener("click", function (e) {
-                                e.stopPropagation();
-                                var childUl = li.querySelector(".dir-children");
-                                if (childUl) {
-                                    loadDirectory(entryPath, childUl, lv + 1);
-                                }
-                            });
-                        })(entry.path, li, level);
-                        div.appendChild(refreshBtn);
-
                         // Toggle expand/collapse
                         (function (entryPath, li, lv) {
                             div.addEventListener("click", function () {
@@ -426,12 +442,16 @@
                                     li.setAttribute("data-opened", "false");
                                     var childUl = li.querySelector(".dir-children");
                                     if (childUl) childUl.remove();
+                                    WS.send({ type: "unwatch_dir", path: entryPath });
+                                    DirWatcher.remove(entryPath);
                                 } else {
                                     li.setAttribute("data-opened", "true");
                                     var childUl = document.createElement("ul");
                                     childUl.className = "dir-children";
                                     li.appendChild(childUl);
                                     loadDirectory(entryPath, childUl, lv + 1);
+                                    WS.send({ type: "watch_dir", path: entryPath });
+                                    DirWatcher.add(entryPath, childUl, lv + 1);
                                 }
                             });
                         })(entry.path, li, level);
@@ -479,6 +499,7 @@
     document.addEventListener("DOMContentLoaded", function () {
         var fileTree = document.getElementById("file-tree");
         loadDirectory("", fileTree, 0);
+        DirWatcher.add("", fileTree, 0);
         WS.connect();
     });
 })();
