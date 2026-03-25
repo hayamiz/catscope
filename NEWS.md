@@ -1,5 +1,27 @@
 # Catscope Release Notes
 
+## v2.2.0 (2026-03-25)
+
+New CLI options, content-based text detection, and self-update support.
+
+### Features
+
+- `--directory` (`-C`) option to specify the directory to serve files from
+- `--system-update` option to self-update the binary in-place from GitHub Releases
+- Content-based text detection for unknown file extensions: files with unrecognized or non-renderable MIME types (e.g., `.sql`, `.conf`, `Makefile`, `Dockerfile`) are inspected and served as `text/plain` if the content is printable text
+- Clipboard copy button now works for any file the server detects as text, not just hardcoded extensions
+
+### Bug Fixes
+
+- Fixed `.sql` and other non-renderable MIME types (e.g., `application/sql`) being downloaded instead of previewed as text
+
+### Developer Experience
+
+- Added `lsof` and `iproute2` (`ss`) to dev container
+- Added Playwright Chromium browser installation to Dockerfile
+- Made e2e test port configurable via `CATSCOPE_TEST_PORT` environment variable
+- New e2e tests for unknown extension handling (6 tests)
+
 ## v2.1.0 (2026-03-25)
 
 WebSocket directory auto-refresh and developer tooling improvements.

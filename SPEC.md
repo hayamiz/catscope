@@ -20,7 +20,7 @@ It can be distributed as a single binary and operates without any external tool 
 
 ---
 
-## 2. Command-Line Interface ⚠️
+## 2. Command-Line Interface ✅
 
 ### 2.1 Usage ✅
 
@@ -30,7 +30,7 @@ catscope [options]
 
 Starts the server and makes files under the current directory browsable via a web browser.
 
-### 2.2 Options ⚠️
+### 2.2 Options ✅
 
 | Option | Short | Default | Description | Status |
 |---|---|---|---|---|
@@ -38,7 +38,7 @@ Starts the server and makes files under the current directory browsable via a we
 | `--port PORT` | `-p` | `4567` | Port number to listen on | ✅ |
 | `--directory DIR` | `-C` | `.` (current directory) | Directory to serve files from | ✅ |
 | `--version` | `-v` | - | Display version and exit | ✅ |
-| `--system-update` | - | - | Self-update the binary to the latest release (see Section 12) | ❌ |
+| `--system-update` | - | - | Self-update the binary to the latest release (see Section 12) | ✅ |
 
 ### 2.3 Root Directory ✅
 
@@ -567,17 +567,17 @@ All other dependencies use Go standard library only (`net/http`, `html/template`
 - [x] Files outside `TOP_DIR` cannot be accessed (path traversal via `../`, etc.)
 - [x] Default binding is `127.0.0.1`
 
-### 11.8 Installation and Self-Update ❌
+### 11.8 Installation and Self-Update ✅
 
-- [ ] One-liner install command downloads the latest release and places it at `~/bin/catscope`
-- [ ] `--system-update` detects the running binary's path via `/proc/<PID>`
-- [ ] `--system-update` succeeds when the binary is writable
-- [ ] `--system-update` prints an error and exits when the binary is not writable
-- [ ] `--system-update` replaces the binary with the latest release from GitHub
+- [x] One-liner install command downloads the latest release and places it at `~/bin/catscope`
+- [x] `--system-update` detects the running binary's path via `/proc/<PID>`
+- [x] `--system-update` succeeds when the binary is writable
+- [x] `--system-update` prints an error and exits when the binary is not writable
+- [x] `--system-update` replaces the binary with the latest release from GitHub
 
 ---
 
-## 12. Installation and Self-Update ❌
+## 12. Installation and Self-Update ✅
 
 ### 12.1 Supported Platforms
 

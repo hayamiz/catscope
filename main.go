@@ -22,6 +22,7 @@ func main() {
 	port := flag.Int("port", 4567, "Port number to listen on")
 	directory := flag.String("directory", "", "Directory to serve files from (default: current directory)")
 	showVersion := flag.Bool("version", false, "Display version and exit")
+	systemUpdate := flag.Bool("system-update", false, "Self-update the binary to the latest release")
 
 	flag.StringVar(bind, "o", "127.0.0.1", "IP address to bind to (shorthand)")
 	flag.IntVar(port, "p", 4567, "Port number to listen on (shorthand)")
@@ -32,6 +33,14 @@ func main() {
 
 	if *showVersion {
 		fmt.Printf("Catscope v%s\n", version)
+		os.Exit(0)
+	}
+
+	if *systemUpdate {
+		if err := selfUpdate(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 		os.Exit(0)
 	}
 
