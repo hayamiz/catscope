@@ -44,17 +44,8 @@ test-e2e: ## Run Playwright integration tests
 
 test-all: test test-e2e ## Run all tests (unit + e2e)
 
-release: build-release-linux ## Create GitHub release from VERSION and NEWS.md
-	@echo "==> Releasing v$(VERSION)"
-	@echo "    Binary: $(BINARY)-linux-amd64"
-	@read -p "    Continue? [y/N] " confirm && [ "$$confirm" = y ] || (echo "Aborted." && exit 1)
-	git tag "v$(VERSION)"
-	git push origin "v$(VERSION)"
-	gh release create "v$(VERSION)" \
-		--title "v$(VERSION)" \
-		--notes-file /dev/stdin \
-		$(BINARY)-linux-amd64 \
-		< <(sed -n "/^## v$(VERSION)/,/^## v/{/^## v$(VERSION)/d;/^## v/d;p;}" NEWS.md)
+release: ## Create GitHub release (interactive script)
+	./scripts/create-release.sh
 
 run: build ## Build and run the server
 	./$(BINARY)

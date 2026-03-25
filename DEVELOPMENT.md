@@ -99,42 +99,24 @@ Development builds (plain `go build`) default to `dev`. Always update both `VERS
 
 ## Creating a Release
 
-1. Update `VERSION` with the new version number:
+Run the interactive release script:
 
-   ```bash
-   echo "2.x.x" > VERSION
-   ```
+```bash
+make release
+# or directly:
+./scripts/create-release.sh
+```
 
-2. Add a new section to `NEWS.md` with the release changes.
+The script will guide you through:
 
-3. Commit and tag:
+1. Verifying prerequisites (git fetch, gh auth)
+2. Validating the VERSION file
+3. Ensuring NEWS.md has an entry for the release
+4. Building the release binary
+5. Creating and pushing the git tag
+6. Creating the GitHub release with release notes
 
-   ```bash
-   VERSION=$(cat VERSION)
-   git add VERSION NEWS.md
-   git commit -m "Release v${VERSION}"
-   git tag "v${VERSION}"
-   git push origin "v${VERSION}"
-   ```
-
-4. Build the release binary:
-
-   ```bash
-   VERSION=$(cat VERSION)
-   GOOS=linux GOARCH=amd64 go build -ldflags="-s -w -X main.version=${VERSION}" -o catscope-linux-amd64 .
-   ```
-
-5. Create the GitHub release with `gh`:
-
-   ```bash
-   VERSION=$(cat VERSION)
-   gh release create "v${VERSION}" \
-     --title "v${VERSION}" \
-     --notes-file <(sed -n "/^## v${VERSION}/,/^## v/{ /^## v${VERSION}/d; /^## v/d; p; }" NEWS.md) \
-     catscope-linux-amd64
-   ```
-
-   This extracts the relevant section from `NEWS.md` as the release notes and attaches the binary.
+Each step requires explicit confirmation, and the script will validate prerequisites before proceeding.
 
 ### GitHub authentication for `gh release create`
 
