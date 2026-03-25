@@ -28,7 +28,7 @@
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "us.anthropic.claude-haiku-4-5-20251001-v1:0"
   },
   "mounts": [
-    "source=${localWorkspaceFolder}/.claude/devcontainer-settings.json,target=${containerWorkspaceFolder}/.claude/settings.json,type=bind"
+    "source=${localWorkspaceFolder}/etc/devcontainer-settings.json,target=${containerWorkspaceFolder}/.claude/settings.json,type=bind"
   ],
   "forwardPorts": [4567],
   "runArgs": ["--network=host"],

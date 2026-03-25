@@ -16,7 +16,16 @@
       "Bash(gh --version)",
       "Bash(pkill -f './catscope')",
       "Read(//home/ubuntu/**)",
-      "Read(//proc/672/net/**)"
+      "Read(//proc/672/net/**)",
+      "Bash(find /workspaces/catscope/e2e -maxdepth 2 -name *.ts -o -name *.config.ts)",
+      "Bash(make help:*)",
+      "Bash(make build:*)",
+      "Bash(make lint:*)",
+      "Bash(make test:*)",
+      "Bash(make clean:*)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(make build-release:*)",
+      "Bash(./catscope --version)"
     ]
   }
 }

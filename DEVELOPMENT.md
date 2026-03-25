@@ -24,7 +24,7 @@ devcontainer --version
 Run the build script from the project root:
 
 ```bash
-./scripts/devcontainer-build.sh
+./etc/devcontainer-build.sh
 ```
 
 This builds the Docker image defined in `.devcontainer/Dockerfile`, passing your host UID/GID so that file permissions are consistent between host and container.
@@ -34,7 +34,7 @@ This builds the Docker image defined in `.devcontainer/Dockerfile`, passing your
 To open a bash shell inside the container:
 
 ```bash
-./scripts/devcontainer-shell.sh
+./etc/devcontainer-shell.sh
 ```
 
 This starts the container (if not already running) and drops you into an interactive bash session as the `ubuntu` user.
@@ -57,11 +57,11 @@ Authentication is role-based. The host instance (e.g., an EC2 instance) must hav
 The Dev Container overrides the project-level Claude Code settings (`.claude/settings.json`) with a devcontainer-specific version. This is achieved via a bind mount in `.devcontainer/devcontainer.json`:
 
 ```
-.claude/devcontainer-settings.json  →  (mounted as)  .claude/settings.json
+etc/devcontainer-settings.json  →  (mounted as)  .claude/settings.json
 ```
 
 - **`.claude/settings.json`** — the project-level settings used on the host (outside the container).
-- **`.claude/devcontainer-settings.json`** — the settings applied inside the Dev Container. Edit this file to change permissions or other Claude Code settings for the containerized environment.
+- **`etc/devcontainer-settings.json`** — the settings applied inside the Dev Container. Edit this file to change permissions or other Claude Code settings for the containerized environment.
 
 Both files are committed to the repository. When the Dev Container starts, the mount replaces `.claude/settings.json` with `devcontainer-settings.json`, so the host settings are not visible inside the container.
 
