@@ -147,6 +147,24 @@ Development builds (plain `go build`) default to `dev`. Always update both `VERS
 
 For fine-grained PATs, the token must be scoped to the `hayamiz/catscope` repository (or the organization). The **Contents** permission covers both release creation and asset uploads.
 
+## GitHub CLI (`gh`) Authentication in the Container
+
+The Dev Container bind-mounts the host's `gh` config directory into the container so that `gh auth` credentials are shared. The mount source is determined by the `GH_CONFIG_DIR` environment variable on the host.
+
+### CLI scripts (automatic)
+
+The `etc/devcontainer-build.sh` and `etc/devcontainer-shell.sh` scripts automatically set `GH_CONFIG_DIR` to `${XDG_CONFIG_HOME:-$HOME/.config}/gh`, so no additional setup is needed.
+
+### VSCode (manual setup required)
+
+When opening the Dev Container from VSCode, the `GH_CONFIG_DIR` environment variable must be available in the host shell environment that VSCode inherits. Add the following to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
+
+```bash
+export GH_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/gh"
+```
+
+Then restart VSCode (or reload the window) so it picks up the new variable.
+
 ## Using with VSCode
 
 Alternatively, open the project in VSCode and run **Dev Containers: Reopen in Container** from the command palette (`Ctrl+Shift+P`).

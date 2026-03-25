@@ -28,8 +28,11 @@
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "us.anthropic.claude-haiku-4-5-20251001-v1:0"
   },
   "mounts": [
-    "source=${localWorkspaceFolder}/etc/devcontainer-settings.json,target=${containerWorkspaceFolder}/.claude/settings.json,type=bind"
+    "source=${localWorkspaceFolder}/etc/devcontainer-settings.json,target=${containerWorkspaceFolder}/.claude/settings.json,type=bind",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/ubuntu/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:GH_CONFIG_DIR},target=/home/ubuntu/.config/gh,type=bind,consistency=cached"
   ],
+  "initializeCommand": "if [ -z \"${GH_CONFIG_DIR:-}\" ]; then export GH_CONFIG_DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/gh\"; fi && if [ ! -d \"$GH_CONFIG_DIR\" ]; then mkdir -p \"$GH_CONFIG_DIR\"; fi",
   "forwardPorts": [4567],
   "runArgs": ["--network=host"],
   "postCreateCommand": "go version && node --version && claude --version"
