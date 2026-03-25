@@ -20,10 +20,12 @@ var version = "dev"
 func main() {
 	bind := flag.String("bind", "127.0.0.1", "IP address to bind to")
 	port := flag.Int("port", 4567, "Port number to listen on")
+	directory := flag.String("directory", "", "Directory to serve files from (default: current directory)")
 	showVersion := flag.Bool("version", false, "Display version and exit")
 
 	flag.StringVar(bind, "o", "127.0.0.1", "IP address to bind to (shorthand)")
 	flag.IntVar(port, "p", 4567, "Port number to listen on (shorthand)")
+	flag.StringVar(directory, "C", "", "Directory to serve files from (shorthand)")
 	flag.BoolVar(showVersion, "v", false, "Display version and exit (shorthand)")
 
 	flag.Parse()
@@ -33,13 +35,17 @@ func main() {
 		os.Exit(0)
 	}
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		slog.Error("failed to get working directory", "error", err)
-		os.Exit(1)
+	baseDir := *directory
+	if baseDir == "" {
+		var err error
+		baseDir, err = os.Getwd()
+		if err != nil {
+			slog.Error("failed to get working directory", "error", err)
+			os.Exit(1)
+		}
 	}
 
-	topDir, err := filepath.Abs(cwd)
+	topDir, err := filepath.Abs(baseDir)
 	if err != nil {
 		slog.Error("failed to resolve absolute path", "error", err)
 		os.Exit(1)
@@ -47,7 +53,17 @@ func main() {
 
 	topDir, err = filepath.EvalSymlinks(topDir)
 	if err != nil {
-		slog.Error("failed to resolve symlinks", "error", err)
+		slog.Error("failed to resolve path", "path", baseDir, "error", err)
+		os.Exit(1)
+	}
+
+	info, err := os.Stat(topDir)
+	if err != nil {
+		slog.Error("failed to access directory", "path", topDir, "error", err)
+		os.Exit(1)
+	}
+	if !info.IsDir() {
+		slog.Error("not a directory", "path", topDir)
 		os.Exit(1)
 	}
 

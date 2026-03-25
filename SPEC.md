@@ -36,12 +36,13 @@ Starts the server and makes files under the current directory browsable via a we
 |---|---|---|---|---|
 | `--bind ADDRESS` | `-o` | `127.0.0.1` | IP address to bind to | ✅ |
 | `--port PORT` | `-p` | `4567` | Port number to listen on | ✅ |
+| `--directory DIR` | `-C` | `.` (current directory) | Directory to serve files from | ✅ |
 | `--version` | `-v` | - | Display version and exit | ✅ |
 | `--system-update` | - | - | Self-update the binary to the latest release (see Section 12) | ❌ |
 
 ### 2.3 Root Directory ✅
 
-The absolute path of the current working directory at server startup (with symlinks resolved) becomes the root directory for file serving (`TOP_DIR`). All file paths are handled as relative paths from this directory.
+By default, the absolute path of the current working directory at server startup (with symlinks resolved) becomes the root directory for file serving (`TOP_DIR`). If the `--directory` (`-C`) option is specified, the given directory is used instead. In either case, the path is canonicalized via `filepath.Abs` + `filepath.EvalSymlinks`. If the specified directory does not exist or is not a directory, the server prints an error and exits with a non-zero status. All file paths are handled as relative paths from `TOP_DIR`.
 
 ### 2.4 Startup Output ✅
 
