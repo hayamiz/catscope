@@ -25,12 +25,14 @@
     "CLAUDE_CODE_USE_BEDROCK": "1",
     "AWS_REGION": "us-east-1",
     "ANTHROPIC_MODEL": "us.anthropic.claude-opus-4-6-v1",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "SSH_AUTH_SOCK": "/tmp/ssh-auth.sock"
   },
   "mounts": [
     "source=${localWorkspaceFolder}/etc/devcontainer-settings.json,target=${containerWorkspaceFolder}/.claude/settings.json,type=bind",
     "source=${localEnv:HOME}/.gitconfig,target=/home/ubuntu/.gitconfig,type=bind,consistency=cached",
-    "source=${localEnv:GH_CONFIG_DIR},target=/home/ubuntu/.config/gh,type=bind,consistency=cached"
+    "source=${localEnv:GH_CONFIG_DIR},target=/home/ubuntu/.config/gh,type=bind,consistency=cached",
+    "source=${localEnv:SSH_AUTH_SOCK},target=/tmp/ssh-auth.sock,type=bind,consistency=cached"
   ],
   "initializeCommand": "if [ -z \"${GH_CONFIG_DIR:-}\" ]; then export GH_CONFIG_DIR=\"${XDG_CONFIG_HOME:-$HOME/.config}/gh\"; fi && if [ ! -d \"$GH_CONFIG_DIR\" ]; then mkdir -p \"$GH_CONFIG_DIR\"; fi",
   "forwardPorts": [4567],

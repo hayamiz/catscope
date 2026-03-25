@@ -11,12 +11,15 @@
       "Bash(sudo npx:*)",
       "Bash(wc -c /workspaces/catscope/.gitignore)",
       "Bash(git add:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git status:*)",
       "Bash(/tmp/catscope-dev --version)",
       "Bash(sudo apt-get:*)",
       "Bash(gh --version)",
       "Bash(pkill -f './catscope')",
       "Read(//home/ubuntu/**)",
-      "Read(//proc/672/net/**)",
+      "Read(//proc/**)",
       "Bash(find /workspaces/catscope/e2e -maxdepth 2 -name *.ts -o -name *.config.ts)",
       "Bash(make help:*)",
       "Bash(make build:*)",
@@ -25,7 +28,16 @@
       "Bash(make clean:*)",
       "Bash(echo \"exit: $?\")",
       "Bash(make build-release:*)",
-      "Bash(./catscope --version)"
+      "Bash(./catscope --version)",
+      "Bash(gh release list:*)",
+      "Bash(chmod +x:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:4567/)",
+      "Bash(lsof -ti:4567)",
+      "Bash(pkill -f catscope)",
+      "Bash(fuser 4567/tcp)",
+      "Bash(sudo fuser:*)",
+      "Bash(curl -s -I:*)",
+      "Bash(pkill -f \"catscope --port 4568\")"
     ]
   }
 }
