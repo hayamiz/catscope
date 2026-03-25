@@ -52,6 +52,41 @@ ANTHROPIC_DEFAULT_HAIKU_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
 
 Authentication is role-based. The host instance (e.g., an EC2 instance) must have an IAM role attached that grants access to the Bedrock API. The container inherits the instance metadata credentials automatically, so no additional credential configuration is needed.
 
+### Claude Code Settings Override
+
+The Dev Container overrides the project-level Claude Code settings (`.claude/settings.json`) with a devcontainer-specific version. This is achieved via a bind mount in `.devcontainer/devcontainer.json`:
+
+```
+.claude/devcontainer-settings.json  →  (mounted as)  .claude/settings.json
+```
+
+- **`.claude/settings.json`** — the project-level settings used on the host (outside the container).
+- **`.claude/devcontainer-settings.json`** — the settings applied inside the Dev Container. Edit this file to change permissions or other Claude Code settings for the containerized environment.
+
+Both files are committed to the repository. When the Dev Container starts, the mount replaces `.claude/settings.json` with `devcontainer-settings.json`, so the host settings are not visible inside the container.
+
+## Make Targets
+
+Common tasks are available via `make`:
+
+```bash
+make help               # Show all targets
+make build              # Build binary (dev, no version)
+make build-release      # Build with version embedded
+make build-release-linux # Cross-build linux/amd64 release binary
+make vet                # Run go vet
+make fmt                # Check formatting
+make fmt-fix            # Auto-format all Go files
+make lint               # Run vet + format check
+make test               # Run Go unit tests
+make test-cover         # Run tests with coverage report
+make test-e2e           # Run Playwright integration tests
+make test-all           # Run all tests (unit + e2e)
+make release            # Create GitHub release (interactive)
+make run                # Build and run the server
+make clean              # Remove build artifacts
+```
+
 ## Versioning
 
 The canonical version number is stored in the `VERSION` file at the project root. The version string is injected at build time via `-ldflags`, reading from this file:
