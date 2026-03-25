@@ -13,7 +13,7 @@
     "vscode": {
       "extensions": [
         "golang.go",
-        "anthropics.claude-code"
+        "anthropic.claude-code"
       ],
       "settings": {
         "go.gopath": "/home/ubuntu/go",
@@ -27,6 +27,9 @@
     "ANTHROPIC_MODEL": "us.anthropic.claude-opus-4-6-v1",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "us.anthropic.claude-haiku-4-5-20251001-v1:0"
   },
+  "mounts": [
+    "source=${localWorkspaceFolder}/.claude/devcontainer-settings.json,target=${containerWorkspaceFolder}/.claude/settings.json,type=bind"
+  ],
   "forwardPorts": [4567],
   "runArgs": ["--network=host"],
   "postCreateCommand": "go version && node --version && claude --version"

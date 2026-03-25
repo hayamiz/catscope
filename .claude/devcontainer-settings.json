@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go mod:*)",
+      "Bash(go get:*)",
+      "Bash(go build:*)",
+      "Bash(go test:*)",
+      "Bash(go vet:*)",
+      "Bash(npm install:*)",
+      "Bash(npx playwright:*)",
+      "Bash(sudo npx:*)",
+      "Bash(wc -c /workspaces/catscope/.gitignore)",
+      "Bash(git add:*)",
+      "Bash(/tmp/catscope-dev --version)",
+      "Bash(sudo apt-get:*)",
+      "Bash(gh --version)",
+      "Bash(pkill -f './catscope')",
+      "Read(//home/ubuntu/**)",
+      "Read(//proc/672/net/**)"
+    ]
+  }
+}
