@@ -215,7 +215,7 @@ Determines Content-Type from file extension:
 
 ### 5.1 Content-Based Text Detection Fallback ✅
 
-When extension-based MIME type resolution results in `application/octet-stream` (i.e., the extension is unknown), the server performs content-based text detection before serving the file:
+When extension-based MIME type resolution results in a type that browsers cannot render inline (i.e., not `text/*`, `image/*`, `application/pdf`, `application/json`, `application/xml`, or `application/javascript`), the server performs content-based text detection before serving the file. This covers both completely unknown extensions (`application/octet-stream`) and extensions with non-renderable MIME types (e.g., `.sql` → `application/sql`):
 
 1. Read the first 8,192 bytes of the file
 2. The file is considered **text** if every byte is one of:
@@ -229,7 +229,7 @@ When extension-based MIME type resolution results in `application/octet-stream` 
 5. If the content is detected as text, serve with `Content-Type: text/plain; charset=utf-8`
 6. Otherwise, serve with `Content-Type: application/octet-stream`
 
-This enables readable preview of files such as `Makefile`, `Dockerfile`, `.gitignore`, `.bashrc`, `.conf`, `.ini`, and other text files with non-standard extensions.
+This enables readable preview of files such as `Makefile`, `Dockerfile`, `.gitignore`, `.bashrc`, `.conf`, `.ini`, `.sql`, and other text files with non-standard or non-renderable MIME types.
 
 ---
 

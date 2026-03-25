@@ -152,4 +152,20 @@ func TestMimeTypeForFilePath(t *testing.T) {
 			t.Errorf("got %q, want text/plain; charset=utf-8", got)
 		}
 	})
+
+	t.Run("sql file detected as text", func(t *testing.T) {
+		path := writeTemp(t, "query.sql", []byte("SELECT * FROM users;\n"))
+		got := mimeTypeForFilePath(path)
+		if got != "text/plain; charset=utf-8" {
+			t.Errorf("got %q, want text/plain; charset=utf-8", got)
+		}
+	})
+
+	t.Run("known browser-renderable type unchanged", func(t *testing.T) {
+		path := writeTemp(t, "data.json", []byte(`{"key": "value"}`))
+		got := mimeTypeForFilePath(path)
+		if got != "application/json" {
+			t.Errorf("got %q, want application/json", got)
+		}
+	})
 }

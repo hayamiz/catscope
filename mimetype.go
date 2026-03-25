@@ -100,11 +100,29 @@ func isLikelyText(filePath string) bool {
 	return true
 }
 
+// isBrowserRenderable returns true if the MIME type is natively renderable
+// by browsers (text, images, PDF, and common application types).
+func isBrowserRenderable(ct string) bool {
+	base := ct
+	if i := strings.Index(ct, ";"); i != -1 {
+		base = strings.TrimSpace(ct[:i])
+	}
+	if strings.HasPrefix(base, "text/") || strings.HasPrefix(base, "image/") {
+		return true
+	}
+	switch base {
+	case "application/pdf", "application/json", "application/xml", "application/javascript":
+		return true
+	}
+	return false
+}
+
 // mimeTypeForFilePath returns the MIME type for a file, using extension-based
-// lookup first, then falling back to content-based text detection.
+// lookup first, then falling back to content-based text detection for types
+// that browsers would not render inline.
 func mimeTypeForFilePath(path string) string {
 	ct := mimeTypeForFile(path)
-	if ct == "application/octet-stream" && isLikelyText(path) {
+	if !isBrowserRenderable(ct) && isLikelyText(path) {
 		return "text/plain; charset=utf-8"
 	}
 	return ct
