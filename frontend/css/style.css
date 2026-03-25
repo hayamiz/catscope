@@ -21,6 +21,12 @@ body {
     flex-shrink: 0;
 }
 
+#header-version {
+    font-size: 12px;
+    font-weight: normal;
+    opacity: 0.8;
+}
+
 #container {
     display: flex;
     flex: 1;

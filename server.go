@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"io/fs"
 	"log/slog"
 	"net/http"
@@ -29,18 +30,26 @@ func setupRoutes(topDir string, watcher *watcherHub) *http.ServeMux {
 }
 
 func handleIndex() http.HandlerFunc {
+	data, err := frontendFS.ReadFile("frontend/index.html")
+	if err != nil {
+		slog.Error("failed to read index.html", "error", err)
+	}
+	tmpl, err := template.New("index").Parse(string(data))
+	if err != nil {
+		slog.Error("failed to parse index.html template", "error", err)
+	}
+
+	type indexData struct {
+		Version string
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
 		}
-		data, err := frontendFS.ReadFile("frontend/index.html")
-		if err != nil {
-			http.Error(w, "internal error", http.StatusInternalServerError)
-			return
-		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write(data)
+		tmpl.Execute(w, indexData{Version: "v" + version})
 	}
 }
 
