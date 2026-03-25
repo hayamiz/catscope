@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     build-essential \
     imagemagick \
+    lsof \
+    iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Go 1.23
@@ -32,8 +34,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Playwright system dependencies for Chromium
-RUN npx playwright install-deps chromium
+# Install Playwright system dependencies and Chromium browser
+RUN npx playwright install-deps chromium \
+    && npx playwright install chromium
 
 # Adjust UID/GID of the ubuntu user to match the host user
 RUN if [ "$USER_UID" != "1000" ]; then \

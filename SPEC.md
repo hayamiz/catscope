@@ -1,6 +1,11 @@
 # Catscope v2 Specification
 
-## 1. Overview
+> **Implementation Status Legend**: Sections are marked with status indicators:
+> - ✅ = Fully implemented and tested
+> - ⚠️ = Partially implemented
+> - ❌ = Not yet implemented
+
+## 1. Overview ✅
 
 Catscope v2 is a web-based file browser that runs on remote environments such as development servers, allowing users to browse files (images, PDF, SVG, text, etc.) from a web browser.
 
@@ -15,9 +20,9 @@ It can be distributed as a single binary and operates without any external tool 
 
 ---
 
-## 2. Command-Line Interface
+## 2. Command-Line Interface ⚠️
 
-### 2.1 Usage
+### 2.1 Usage ✅
 
 ```
 catscope [options]
@@ -25,20 +30,20 @@ catscope [options]
 
 Starts the server and makes files under the current directory browsable via a web browser.
 
-### 2.2 Options
+### 2.2 Options ⚠️
 
-| Option | Short | Default | Description |
-|---|---|---|---|
-| `--bind ADDRESS` | `-o` | `127.0.0.1` | IP address to bind to |
-| `--port PORT` | `-p` | `4567` | Port number to listen on |
-| `--version` | `-v` | - | Display version and exit |
-| `--system-update` | - | - | Self-update the binary to the latest release (see Section 12) |
+| Option | Short | Default | Description | Status |
+|---|---|---|---|---|
+| `--bind ADDRESS` | `-o` | `127.0.0.1` | IP address to bind to | ✅ |
+| `--port PORT` | `-p` | `4567` | Port number to listen on | ✅ |
+| `--version` | `-v` | - | Display version and exit | ✅ |
+| `--system-update` | - | - | Self-update the binary to the latest release (see Section 12) | ❌ |
 
-### 2.3 Root Directory
+### 2.3 Root Directory ✅
 
 The absolute path of the current working directory at server startup (with symlinks resolved) becomes the root directory for file serving (`TOP_DIR`). All file paths are handled as relative paths from this directory.
 
-### 2.4 Startup Output
+### 2.4 Startup Output ✅
 
 The following information is printed to stdout at startup:
 
@@ -50,9 +55,9 @@ Listening on: http://127.0.0.1:4567
 
 ---
 
-## 3. HTTP API
+## 3. HTTP API ✅
 
-### 3.1 Main Page
+### 3.1 Main Page ✅
 
 #### `GET /`
 
@@ -62,7 +67,7 @@ Returns the file browser SPA (Single Page Application).
 - **Content-Type**: `text/html; charset=utf-8`
 - **Content**: `index.html` embedded via `go:embed`. All CSS/JS are served inline or as separate assets
 
-### 3.2 File Serving Endpoints
+### 3.2 File Serving Endpoints ✅
 
 #### `GET /file/{path...}`
 
@@ -104,7 +109,7 @@ Returns the file for download.
 - **Content-Disposition**: `attachment; filename="{filename}"`
 - **Response**: Raw file data
 
-### 3.3 API Endpoints
+### 3.3 API Endpoints ✅
 
 #### `GET /api/lsdir/{path...}`
 
@@ -139,13 +144,13 @@ Returns directory contents as JSON.
   - Directory does not exist: `404 Not Found`
   - Path is not a directory: `400 Bad Request`
 
-### 3.4 WebSocket Endpoint
+### 3.4 WebSocket Endpoint ✅
 
 #### `GET /ws`
 
 Establishes a WebSocket connection (see "6. Real-Time File Monitoring" for details).
 
-### 3.5 Asset Serving
+### 3.5 Asset Serving ✅
 
 Serves frontend assets embedded via `go:embed`.
 
@@ -157,9 +162,9 @@ Serves frontend assets embedded via `go:embed`.
 
 ---
 
-## 4. Path Resolution and Security
+## 4. Path Resolution and Security ✅
 
-### 4.1 Path Resolution Rules
+### 4.1 Path Resolution Rules ✅
 
 1. Converting URL paths to file paths:
    - Strip the leading `/` from the URL path
@@ -167,7 +172,7 @@ Serves frontend assets embedded via `go:embed`.
    - Canonicalize the resulting path using `filepath.Abs` + `filepath.EvalSymlinks`
 2. **Path Traversal Prevention**: Verify that the canonicalized path starts with the `TOP_DIR` prefix. If not, return `403 Forbidden`
 
-### 4.2 Security Policy
+### 4.2 Security Policy ✅
 
 - **Default Bind**: `127.0.0.1` (localhost only)
 - **Authentication/Authorization**: None (assumes usage within a trusted network)
@@ -178,7 +183,7 @@ Serves frontend assets embedded via `go:embed`.
 
 ---
 
-## 5. MIME Type Mapping
+## 5. MIME Type Mapping ✅
 
 Determines Content-Type from file extension:
 
@@ -207,18 +212,36 @@ Determines Content-Type from file extension:
 
 **Extension Detection Rule**: Extract the `.` + alphanumeric suffix at the end of the filename as the extension (case-insensitive).
 
+### 5.1 Content-Based Text Detection Fallback ✅
+
+When extension-based MIME type resolution results in `application/octet-stream` (i.e., the extension is unknown), the server performs content-based text detection before serving the file:
+
+1. Read the first 8,192 bytes of the file
+2. The file is considered **text** if every byte is one of:
+   - Printable ASCII: `0x20`–`0x7E`
+   - Common whitespace: tab (`0x09`), line feed (`0x0A`), carriage return (`0x0D`)
+   - High bytes: `0x80`–`0xFF` (valid in UTF-8 multibyte sequences)
+3. The file is considered **binary** if any byte is:
+   - NUL (`0x00`)
+   - Other control characters: `0x01`–`0x08`, `0x0E`–`0x1F`, `0x7F` (DEL)
+4. Empty files or files that cannot be read are treated as binary (no fallback)
+5. If the content is detected as text, serve with `Content-Type: text/plain; charset=utf-8`
+6. Otherwise, serve with `Content-Type: application/octet-stream`
+
+This enables readable preview of files such as `Makefile`, `Dockerfile`, `.gitignore`, `.bashrc`, `.conf`, `.ini`, and other text files with non-standard extensions.
+
 ---
 
-## 6. Real-Time File Monitoring
+## 6. Real-Time File Monitoring ✅
 
-### 6.1 Communication Method
+### 6.1 Communication Method ✅
 
 Uses bidirectional communication via WebSocket.
 
 - **Endpoint**: `/ws`
 - **Protocol**: WebSocket (RFC 6455)
 
-### 6.2 WebSocket Message Format
+### 6.2 WebSocket Message Format ✅
 
 All messages are sent and received in JSON format.
 
@@ -229,7 +252,7 @@ All messages are sent and received in JSON format.
 }
 ```
 
-### 6.3 Client → Server Messages
+### 6.3 Client → Server Messages ✅
 
 | type | path | Description |
 |---|---|---|
@@ -238,7 +261,7 @@ All messages are sent and received in JSON format.
 | `watch_dir` | Relative path of the directory (empty string for root) | Sent when a directory is expanded in the file tree. The server starts monitoring the directory for content changes (file creation, deletion, renaming) |
 | `unwatch_dir` | Relative path of the directory (empty string for root) | Sent when a directory is collapsed in the file tree. The server stops monitoring the directory |
 
-### 6.4 Server → Client Messages
+### 6.4 Server → Client Messages ✅
 
 | type | path | Description |
 |---|---|---|
@@ -247,7 +270,7 @@ All messages are sent and received in JSON format.
 | `file_deleted` | Relative path of the file | File has been deleted |
 | `dir_changed` | Relative path of the directory (empty string for root) | A file or subdirectory was created, deleted, or renamed within the directory. The client should re-fetch the directory contents |
 
-### 6.5 File Monitoring Behavior
+### 6.5 File Monitoring Behavior ✅
 
 - Uses Go's `fsnotify` library (Linux: inotify, macOS: kqueue, Windows: ReadDirectoryChangesW)
 - On `watch` received: Add the file to `fsnotify` watch targets
@@ -259,15 +282,15 @@ All messages are sent and received in JSON format.
 - When multiple clients watch the same file or directory, manage with reference counting; remove from `fsnotify` only when all clients have sent `unwatch`/`unwatch_dir`
 - On WebSocket connection close: Automatically treat all files and directories watched by that connection as `unwatch`/`unwatch_dir`
 
-### 6.6 Debounce
+### 6.6 Debounce ✅
 
 Since file change events can fire in rapid succession, debounce notifications for the same file at 100ms intervals.
 
 ---
 
-## 7. Frontend Specification
+## 7. Frontend Specification ✅
 
-### 7.1 Technology Stack
+### 7.1 Technology Stack ✅
 
 - **JavaScript**: Vanilla JS (no framework)
 - **CSS**: Custom CSS (no framework)
@@ -276,14 +299,14 @@ Since file change events can fire in rapid succession, debounce notifications fo
 - **Icons**: Inline SVG
 - **Drag/Resize**: Vanilla JS (Pointer Events API)
 
-### 7.2 Page Structure
+### 7.2 Page Structure ✅
 
 The main page consists of:
 - Header: App name "Catscope"
 - Sidebar (left): File list (directory tree)
 - Main area (right): Preview window display area
 
-### 7.3 File List (Directory Tree)
+### 7.3 File List (Directory Tree) ✅
 
 **Initial Display**: On page load, fetch the root directory (`/`) contents via `GET /api/lsdir/` and render the list.
 
@@ -300,16 +323,16 @@ The main page consists of:
 
 **Download Button**: Links to `/save/{path}`. Clicking downloads the file.
 
-### 7.4 Preview Window
+### 7.4 Preview Window ✅
 
 Clicking a file name in the file list generates a preview window.
 
-#### 7.4.1 Initial Window State
+#### 7.4.1 Initial Window State ✅
 
 - Position: Cascade placement within the viewport (each new window is slightly offset from the previous one)
 - Size: 600px width × 400px height
 
-#### 7.4.2 Window Components
+#### 7.4.2 Window Components ✅
 
 1. **Title Bar**:
    - File path display (truncated with ellipsis if too long)
@@ -317,7 +340,7 @@ Clicking a file name in the file list generates a preview window.
    - Close button
 2. **Content Area**: Display area for file contents
 
-#### 7.4.3 Content Display Methods
+#### 7.4.3 Content Display Methods ✅
 
 | File Type | Display Method | Detection Criteria |
 |---|---|---|
@@ -330,29 +353,31 @@ Clicking a file name in the file list generates a preview window.
 - All previews reference `/preview/{path}?t={timestamp}` (cache busting)
 - When EPS conversion is unavailable, handle the error response from `/preview/` and display a message "Cannot preview because ImageMagick is not installed" with a download link
 
-#### 7.4.4 Window Operations
+#### 7.4.4 Window Operations ✅
 
 - **Drag Move**: Drag the title bar to move the window (using Pointer Events API)
 - **Resize**: Drag the bottom-right corner to resize the window (using Pointer Events API). Content area height is recalculated on resize
 - **Focus (z-index management)**: Clicking a window brings it to the front. WindowManager manages z-index for all windows
 - **Close**: Clicking the close button removes the window from the DOM. Sends an `unwatch` message to the server
 
-#### 7.4.5 Clipboard Copy Feature
+#### 7.4.5 Clipboard Copy Feature ✅
 
 - Uses Clipboard API (`navigator.clipboard.writeText()`)
-- Enabled for text files (extensions: `.txt`, `.tsv`, `.csv`, `.log`, `.md`, `.yaml`, `.yml`, `.toml`, `.json`, `.xml`, `.html`, `.css`, `.js`)
+- Enabled for text files. The frontend sends a `HEAD` request to `/file/{path}` and checks the `Content-Type` response header. If the Content-Type starts with `text/` or is `application/json`, `application/xml`, or `application/javascript`, the file is treated as text
+  - This covers both files with known text extensions and files detected as text via content-based sniffing (see Section 5.1)
 - On file open, fetches text content from `/file/{path}` via `fetch`
+- Copy button is added dynamically after the Content-Type check completes
 - On copy button click, writes to the clipboard
 - On successful copy, displays a toast notification (auto-dismissed after 3 seconds)
 
-#### 7.4.6 Real-Time Updates
+#### 7.4.6 Real-Time Updates ✅
 
 - Receives `file_modified`, `file_renamed`, `file_deleted` messages via WebSocket
 - `file_modified`: Reloads the content of the corresponding preview window (appends timestamp to `src` for cache busting)
 - `file_renamed`: Same as above (reload)
 - `file_deleted`: Displays a "File has been deleted" message in the window's content area
 
-### 7.5 WindowManager
+### 7.5 WindowManager ✅
 
 An object that manages multiple preview windows.
 
@@ -361,13 +386,13 @@ An object that manages multiple preview windows.
 - **z-index Management**: Moves the clicked window to the end of the array and assigns z-index in array order
 - **Reload by Path**: `reloadByPath(path)` - Reloads all windows matching the specified path
 
-### 7.6 WebSocket Connection Management
+### 7.6 WebSocket Connection Management ✅
 
 - Establishes a WebSocket connection to `/ws` on page load
 - Auto-reconnects on disconnect (initial 1 second, then exponential backoff, max 30 seconds)
 - On reconnect, re-sends `watch` messages for all currently monitored files and `watch_dir` messages for all expanded directories
 
-### 7.7 Toast Notifications
+### 7.7 Toast Notifications ✅
 
 - Displayed at the bottom-right of the screen
 - Auto-dismissed after 3 seconds
@@ -375,9 +400,9 @@ An object that manages multiple preview windows.
 
 ---
 
-## 8. External Tool Dependencies (Optional)
+## 8. External Tool Dependencies (Optional) ✅
 
-### 8.1 ImageMagick (Optional)
+### 8.1 ImageMagick (Optional) ✅
 
 Used only for EPS file preview conversion.
 
@@ -386,7 +411,7 @@ Used only for EPS file preview conversion.
 
 **When ImageMagick is not installed**: Only EPS file preview is unavailable. All other features operate normally.
 
-### 8.2 EPS Upscaling Logic (When Using ImageMagick)
+### 8.2 EPS Upscaling Logic (When Using ImageMagick) ✅
 
 To improve visibility of small EPS images, DPI is automatically adjusted based on pixel count:
 
@@ -401,15 +426,15 @@ To improve visibility of small EPS images, DPI is automatically adjusted based o
 
 ---
 
-## 9. UI Styling
+## 9. UI Styling ⚠️
 
-### 9.1 Overall Layout
+### 9.1 Overall Layout ⚠️
 
-- **Layout**: Two-column with sidebar (file list) + main area (preview windows)
-- **Sidebar Width**: 300px (resizable)
-- **Font**: System font stack (`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`)
+- **Layout**: Two-column with sidebar (file list) + main area (preview windows) ✅
+- **Sidebar Width**: 300px (resizable) — ❌ resize handle not yet implemented
+- **Font**: System font stack (`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`) ✅
 
-### 9.2 Color Palette
+### 9.2 Color Palette ✅
 
 | Element | Color |
 |---|---|
@@ -422,14 +447,14 @@ To improve visibility of small EPS images, DPI is automatically adjusted based o
 | Window drop shadow | `0 0 5px 3px rgba(0,0,0,0.4)` |
 | Toast notification (success) | `#5cb85c` |
 
-### 9.3 File List Styles
+### 9.3 File List Styles ✅
 
 - Directory: Folder icon (inline SVG) + name
 - File: File icon (inline SVG) + name
 - Indentation: 20px left padding per nesting level
 - On hover: Slightly change background color
 
-### 9.4 Preview Window Styles
+### 9.4 Preview Window Styles ✅
 
 - **Window Frame**: `position: absolute`, white background, border color `#b6edff`, drop shadow
 - **Title Bar**: Background color `#008CBA`, height `30px`, white text
@@ -439,9 +464,9 @@ To improve visibility of small EPS images, DPI is automatically adjusted based o
 
 ---
 
-## 10. Build and Project Structure
+## 10. Build and Project Structure ✅
 
-### 10.1 Directory Structure (Planned)
+### 10.1 Directory Structure ✅
 
 ```
 catscope-v2/
@@ -467,7 +492,7 @@ catscope-v2/
 └── README.md
 ```
 
-### 10.2 Build Instructions
+### 10.2 Build Instructions ✅
 
 ```bash
 # Standard build
@@ -482,7 +507,7 @@ GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o catscope-darwin-arm64 .
 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o catscope-windows-amd64.exe .
 ```
 
-### 10.3 Go Dependencies
+### 10.3 Go Dependencies ✅
 
 | Library | Purpose |
 |---|---|
@@ -497,51 +522,51 @@ All other dependencies use Go standard library only (`net/http`, `html/template`
 
 ### 11.1 Basic Functionality
 
-- [ ] `go build` produces a single binary
-- [ ] Running `./catscope` starts the server and the file tree is displayed in the browser
-- [ ] `--bind`, `--port`, `--version` options work correctly
-- [ ] Warning message is displayed when using `--bind 0.0.0.0`
+- [x] `go build` produces a single binary
+- [x] Running `./catscope` starts the server and the file tree is displayed in the browser
+- [x] `--bind`, `--port`, `--version` options work correctly
+- [x] Warning message is displayed when using `--bind 0.0.0.0`
 
 ### 11.2 File Operations
 
-- [ ] Directory expand/collapse works
-- [ ] Directory tree auto-refreshes when files are created, deleted, or renamed
-- [ ] Clicking a file opens a preview window
-- [ ] Download button downloads the file
+- [x] Directory expand/collapse works
+- [x] Directory tree auto-refreshes when files are created, deleted, or renamed
+- [x] Clicking a file opens a preview window
+- [x] Download button downloads the file
 
 ### 11.3 Preview
 
-- [ ] PNG, JPEG, GIF, WebP are displayed with `<img>`
-- [ ] SVG is natively displayed with `<img>`
-- [ ] PDF is displayed with the browser's built-in viewer via `<iframe>`
-- [ ] Text files (txt, csv, log, etc.) are displayed via `<iframe>`
-- [ ] EPS is displayed as a PNG-converted preview in environments with ImageMagick
-- [ ] EPS shows an error message + download link in environments without ImageMagick
+- [x] PNG, JPEG, GIF, WebP are displayed with `<img>`
+- [x] SVG is natively displayed with `<img>`
+- [x] PDF is displayed with the browser's built-in viewer via `<iframe>`
+- [x] Text files (txt, csv, log, etc.) are displayed via `<iframe>`
+- [x] EPS is displayed as a PNG-converted preview in environments with ImageMagick
+- [x] EPS shows an error message + download link in environments without ImageMagick
 
 ### 11.4 Window Operations
 
-- [ ] Preview windows can be dragged to move
-- [ ] Preview windows can be resized
-- [ ] Clicking a window brings it to the front
-- [ ] Close button closes the window
+- [x] Preview windows can be dragged to move
+- [x] Preview windows can be resized
+- [x] Clicking a window brings it to the front
+- [x] Close button closes the window
 
 ### 11.5 Clipboard
 
-- [ ] Copy button works for text files
-- [ ] Toast notification is displayed on successful copy
+- [x] Copy button works for text files
+- [x] Toast notification is displayed on successful copy
 
 ### 11.6 Real-Time Updates
 
-- [ ] Preview auto-updates when a file is modified
-- [ ] Auto-reconnects when WebSocket disconnects
-- [ ] File monitoring is restored after reconnection
+- [x] Preview auto-updates when a file is modified
+- [x] Auto-reconnects when WebSocket disconnects
+- [x] File monitoring is restored after reconnection
 
 ### 11.7 Security
 
-- [ ] Files outside `TOP_DIR` cannot be accessed (path traversal via `../`, etc.)
-- [ ] Default binding is `127.0.0.1`
+- [x] Files outside `TOP_DIR` cannot be accessed (path traversal via `../`, etc.)
+- [x] Default binding is `127.0.0.1`
 
-### 11.8 Installation and Self-Update
+### 11.8 Installation and Self-Update ❌
 
 - [ ] One-liner install command downloads the latest release and places it at `~/bin/catscope`
 - [ ] `--system-update` detects the running binary's path via `/proc/<PID>`
@@ -551,7 +576,7 @@ All other dependencies use Go standard library only (`net/http`, `html/template`
 
 ---
 
-## 12. Installation and Self-Update
+## 12. Installation and Self-Update ❌
 
 ### 12.1 Supported Platforms
 

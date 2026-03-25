@@ -118,8 +118,10 @@
     function PreviewWindow(path) {
         this.path = path;
         this.textContent = null;
+        this.isText = false;
         this.el = null;
         this.contentEl = null;
+        this.copyBtnContainer = null;
         this.init();
     }
 
@@ -142,23 +144,10 @@
         title.textContent = this.path;
         titleBar.appendChild(title);
 
-        // Copy button (text files only)
-        if (isTextFile(this.path)) {
-            var copyBtn = document.createElement("button");
-            copyBtn.className = "btn";
-            copyBtn.title = "Copy to clipboard";
-            copyBtn.innerHTML = '<img src="/assets/icons/clipboard.svg" alt="Copy">';
-            copyBtn.addEventListener("click", function (e) {
-                e.stopPropagation();
-                self.copyToClipboard();
-            });
-            titleBar.appendChild(copyBtn);
-
-            // Fetch text content for clipboard
-            fetch("/file/" + this.path)
-                .then(function (r) { return r.text(); })
-                .then(function (text) { self.textContent = text; });
-        }
+        // Placeholder for copy button (added dynamically based on Content-Type)
+        this.copyBtnContainer = document.createElement("span");
+        titleBar.appendChild(this.copyBtnContainer);
+        this.detectTextAndEnableCopy();
 
         // Close button
         var closeBtn = document.createElement("button");
@@ -239,9 +228,35 @@
         }
     };
 
+    PreviewWindow.prototype.detectTextAndEnableCopy = function () {
+        var self = this;
+        fetch("/file/" + this.path, { method: "HEAD" })
+            .then(function (r) {
+                var ct = (r.headers.get("Content-Type") || "").split(";")[0].trim();
+                if (ct.indexOf("text/") === 0 || ct === "application/json" ||
+                    ct === "application/xml" || ct === "application/javascript") {
+                    self.isText = true;
+                    if (!self.copyBtnContainer.hasChildNodes()) {
+                        var copyBtn = document.createElement("button");
+                        copyBtn.className = "btn";
+                        copyBtn.title = "Copy to clipboard";
+                        copyBtn.innerHTML = '<img src="/assets/icons/clipboard.svg" alt="Copy">';
+                        copyBtn.addEventListener("click", function (e) {
+                            e.stopPropagation();
+                            self.copyToClipboard();
+                        });
+                        self.copyBtnContainer.appendChild(copyBtn);
+                    }
+                    return fetch("/file/" + self.path)
+                        .then(function (r2) { return r2.text(); })
+                        .then(function (text) { self.textContent = text; });
+                }
+            });
+    };
+
     PreviewWindow.prototype.reload = function () {
         this.loadContent();
-        if (isTextFile(this.path)) {
+        if (this.isText) {
             var self = this;
             fetch("/file/" + this.path)
                 .then(function (r) { return r.text(); })

@@ -63,7 +63,7 @@ func handleFile(topDir string) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Set("Content-Type", mimeTypeForFile(resolved))
+		w.Header().Set("Content-Type", mimeTypeForFilePath(resolved))
 		http.ServeFile(w, r, resolved)
 	}
 }
@@ -116,7 +116,7 @@ func handlePreview(topDir string) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Set("Content-Type", mimeTypeForFile(resolved))
+		w.Header().Set("Content-Type", mimeTypeForFilePath(resolved))
 		http.ServeFile(w, r, resolved)
 	}
 }

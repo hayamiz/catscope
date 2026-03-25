@@ -1,7 +1,9 @@
 package main
 
 import (
+	"io"
 	"mime"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -65,4 +67,45 @@ var imageExtensions = map[string]bool{
 func isImageFile(name string) bool {
 	ext := strings.ToLower(filepath.Ext(name))
 	return imageExtensions[ext]
+}
+
+// isLikelyText reads the first 8192 bytes of a file and returns true
+// if the content appears to be printable text (ASCII/UTF-8).
+func isLikelyText(filePath string) bool {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	buf := make([]byte, 8192)
+	n, err := f.Read(buf)
+	if n == 0 || (err != nil && err != io.EOF) {
+		return false
+	}
+
+	for _, b := range buf[:n] {
+		if b >= 0x20 && b <= 0x7E {
+			continue // printable ASCII
+		}
+		if b == 0x09 || b == 0x0A || b == 0x0D {
+			continue // tab, LF, CR
+		}
+		if b >= 0x80 {
+			continue // high bytes (UTF-8 multibyte)
+		}
+		// NUL or other control character → binary
+		return false
+	}
+	return true
+}
+
+// mimeTypeForFilePath returns the MIME type for a file, using extension-based
+// lookup first, then falling back to content-based text detection.
+func mimeTypeForFilePath(path string) string {
+	ct := mimeTypeForFile(path)
+	if ct == "application/octet-stream" && isLikelyText(path) {
+		return "text/plain; charset=utf-8"
+	}
+	return ct
 }
