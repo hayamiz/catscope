@@ -349,6 +349,7 @@ Clicking a file name in the file list generates a preview window.
 | EPS (conversion available) | `<img>` element | `/preview/` returns PNG |
 | EPS (conversion unavailable) | Error message + download link | `/preview/` returns 501 |
 | PDF | `<iframe>` element | `.pdf` extension |
+| CSV/TSV | Interactive HTML table | `.csv` or `.tsv` extension (see §7.4.7) |
 | Text-based | `<iframe>` element | All others |
 
 - All previews reference `/preview/{path}?t={timestamp}` (cache busting)
@@ -370,6 +371,18 @@ Clicking a file name in the file list generates a preview window.
 - Copy button is added dynamically after the Content-Type check completes
 - On copy button click, writes to the clipboard
 - On successful copy, displays a toast notification (auto-dismissed after 3 seconds)
+
+#### 7.4.7 CSV/TSV Table Viewer ✅
+
+CSV (`.csv`) and TSV (`.tsv`) files are displayed as interactive HTML tables instead of raw text in iframes.
+
+- **Parsing**: The frontend fetches the raw file content from `/file/{path}` and parses it client-side. CSV uses comma as delimiter; TSV uses tab
+- **Header Row**: The first row is treated as column headers, rendered in `<thead>` with distinct styling (blue background matching the app theme, white text, sticky positioning)
+- **Striped Rows**: Table body rows alternate background color (even rows highlighted) for readability
+- **Row Hover**: Rows highlight on mouse hover
+- **Column Sort**: Clicking a column header sorts the table by that column. Clicking again toggles between ascending and descending order. A sort indicator arrow (▲/▼) is displayed in the active header cell. Sorting uses numeric comparison when possible, falling back to locale-aware string comparison
+- **Monospace Font**: Table uses monospace font for data alignment
+- **Scrollable**: The table wrapper is scrollable both horizontally and vertically for large datasets
 
 #### 7.4.6 Real-Time Updates ✅
 

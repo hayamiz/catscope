@@ -32,6 +32,11 @@
         return getExtension(path) === ".eps";
     }
 
+    function isCSV(path) {
+        var ext = getExtension(path);
+        return ext === ".csv" || ext === ".tsv";
+    }
+
     // ---- Toast ----
     function showToast(message) {
         var el = document.createElement("div");
@@ -221,12 +226,113 @@
             var iframe = document.createElement("iframe");
             iframe.src = "/preview/" + this.path + "?t=" + ts;
             this.contentEl.appendChild(iframe);
+        } else if (isCSV(this.path)) {
+            this.loadCSVContent();
         } else {
             var iframe = document.createElement("iframe");
             iframe.src = "/preview/" + this.path + "?t=" + ts;
             this.contentEl.appendChild(iframe);
         }
     };
+
+    PreviewWindow.prototype.loadCSVContent = function () {
+        var self = this;
+        var delimiter = getExtension(this.path) === ".tsv" ? "\t" : ",";
+
+        fetch("/file/" + this.path)
+            .then(function (r) { return r.text(); })
+            .then(function (text) {
+                self.contentEl.innerHTML = "";
+                var lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+                // Remove trailing empty line
+                while (lines.length > 0 && lines[lines.length - 1] === "") {
+                    lines.pop();
+                }
+                if (lines.length === 0) return;
+
+                var rows = [];
+                for (var i = 0; i < lines.length; i++) {
+                    rows.push(lines[i].split(delimiter));
+                }
+
+                var wrapper = document.createElement("div");
+                wrapper.className = "csv-table-wrapper";
+
+                var table = document.createElement("table");
+                table.className = "csv-table";
+
+                // Header
+                var thead = document.createElement("thead");
+                var headerRow = document.createElement("tr");
+                for (var c = 0; c < rows[0].length; c++) {
+                    var th = document.createElement("th");
+                    th.textContent = rows[0][c];
+                    var arrow = document.createElement("span");
+                    arrow.className = "sort-arrow";
+                    th.appendChild(arrow);
+                    th.addEventListener("click", (function (colIdx) {
+                        return function () { sortCSVTable(table, colIdx); };
+                    })(c));
+                    headerRow.appendChild(th);
+                }
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+
+                // Body
+                var tbody = document.createElement("tbody");
+                for (var r = 1; r < rows.length; r++) {
+                    var tr = document.createElement("tr");
+                    for (var c = 0; c < rows[r].length; c++) {
+                        var td = document.createElement("td");
+                        td.textContent = rows[r][c];
+                        tr.appendChild(td);
+                    }
+                    tbody.appendChild(tr);
+                }
+                table.appendChild(tbody);
+
+                wrapper.appendChild(table);
+                self.contentEl.appendChild(wrapper);
+            });
+    };
+
+    function sortCSVTable(table, colIndex) {
+        var thead = table.querySelector("thead");
+        var tbody = table.querySelector("tbody");
+        var ths = thead.querySelectorAll("th");
+        var currentTh = ths[colIndex];
+
+        // Determine sort direction
+        var ascending = currentTh.getAttribute("data-sort") !== "asc";
+
+        // Clear all sort indicators
+        for (var i = 0; i < ths.length; i++) {
+            ths[i].removeAttribute("data-sort");
+            ths[i].querySelector(".sort-arrow").textContent = "";
+        }
+
+        currentTh.setAttribute("data-sort", ascending ? "asc" : "desc");
+        currentTh.querySelector(".sort-arrow").textContent = ascending ? " \u25B2" : " \u25BC";
+
+        var rows = Array.prototype.slice.call(tbody.querySelectorAll("tr"));
+        rows.sort(function (a, b) {
+            var aText = (a.cells[colIndex] || {}).textContent || "";
+            var bText = (b.cells[colIndex] || {}).textContent || "";
+            var aNum = parseFloat(aText);
+            var bNum = parseFloat(bText);
+            var result;
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+                result = aNum - bNum;
+            } else {
+                result = aText.localeCompare(bText);
+            }
+            return ascending ? result : -result;
+        });
+
+        for (var i = 0; i < rows.length; i++) {
+            tbody.appendChild(rows[i]);
+        }
+    }
 
     PreviewWindow.prototype.detectTextAndEnableCopy = function () {
         var self = this;
