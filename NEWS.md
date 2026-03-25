@@ -1,5 +1,21 @@
 # Catscope Release Notes
 
+## v2.1.0 (2026-03-25)
+
+WebSocket directory auto-refresh and developer tooling improvements.
+
+### Features
+
+- WebSocket-based directory auto-refresh: directory tree updates automatically when files are added, removed, or renamed
+- Makefile for build, test, lint, and release tasks
+- Release script (`scripts/create-release.sh`) for streamlined release creation
+
+### Developer Experience
+
+- Dev container mounts host git and gh config for seamless GitHub access
+- Reorganized devcontainer scripts and settings into `etc/` directory
+- Documented required GitHub token permissions for `gh release create`
+
 ## v2.0.0 (2026-03-24)
 
 Initial Go rewrite of Catscope.
