@@ -12,3 +12,4 @@ e2e/playwright-report/
 
 # Go
 coverage.out
+catscope-linux-amd64

@@ -37,7 +37,10 @@
       "Bash(fuser 4567/tcp)",
       "Bash(sudo fuser:*)",
       "Bash(curl -s -I:*)",
-      "Bash(pkill -f \"catscope --port 4568\")"
+      "Bash(pkill -f \"catscope --port 4568\")",
+      "Bash(pkill -f \"catscope.*4568\")",
+      "Bash(CATSCOPE_TEST_PORT=4568 npx playwright test tests/csv-viewer.spec.ts --reporter=list)",
+      "Bash(CATSCOPE_TEST_PORT=4568 npx playwright test --reporter=list)"
     ]
   }
 }
