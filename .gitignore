@@ -1,5 +1,6 @@
 # Build output
 catscope
+releases/
 
 # IDE / tool
 .claude/

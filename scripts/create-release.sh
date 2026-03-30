@@ -193,6 +193,12 @@ fi
 
 success "Release binary built: ${BINARY}"
 
+# Archive binary to releases/ directory
+ARCHIVE_DIR="releases/v${VERSION}"
+mkdir -p "$ARCHIVE_DIR"
+cp "$BINARY" "$ARCHIVE_DIR/"
+success "Binary archived to ${ARCHIVE_DIR}/${BINARY}"
+
 # Phase 5: Create Git Tag
 echo ""
 info "==> Phase 5: Create Git Tag"
@@ -266,6 +272,7 @@ info "Release details:"
 echo "  - Version: ${VERSION}"
 echo "  - Tag: ${TAG}"
 echo "  - Binary: ${BINARY}"
+echo "  - Archive: ${ARCHIVE_DIR}/${BINARY}"
 if [ -n "$RELEASE_URL" ]; then
     echo "  - URL: ${RELEASE_URL}"
 fi
