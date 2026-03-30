@@ -34,9 +34,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Playwright system dependencies and Chromium browser
-RUN npx playwright install-deps chromium \
-    && npx playwright install chromium
+# Install Playwright system dependencies (requires root)
+RUN npx playwright install-deps chromium
 
 # Adjust UID/GID of the ubuntu user to match the host user
 RUN if [ "$USER_UID" != "1000" ]; then \
@@ -64,3 +63,6 @@ ENV ANTHROPIC_DEFAULT_HAIKU_MODEL=us.anthropic.claude-haiku-4-5-20251001-v1:0
 
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
+
+# Install Playwright Chromium browser (as non-root so it goes to ~/.cache/ms-playwright/)
+RUN npx playwright install chromium
