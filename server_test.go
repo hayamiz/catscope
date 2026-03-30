@@ -20,7 +20,7 @@ func setupTestServer(t *testing.T) (string, *http.ServeMux) {
 
 	watcher := newWatcherHub()
 	t.Cleanup(func() { watcher.close() })
-	mux := setupRoutes(dir, watcher)
+	mux := setupRoutes(dir, watcher, newAuthState(false, ""))
 	return dir, mux
 }
 

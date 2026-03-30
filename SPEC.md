@@ -39,6 +39,7 @@ Starts the server and makes files under the current directory browsable via a we
 | `--directory DIR` | `-C` | `.` (current directory) | Directory to serve files from | ✅ |
 | `--version` | `-v` | - | Display version and exit | ✅ |
 | `--system-update` | - | - | Self-update the binary to the latest release (see Section 12) | ✅ |
+| `--no-password` | - | - | Skip password authentication (server starts without prompting for a password) | ✅ |
 
 ### 2.3 Root Directory ✅
 
@@ -176,7 +177,7 @@ Serves frontend assets embedded via `go:embed`.
 ### 4.2 Security Policy ✅
 
 - **Default Bind**: `127.0.0.1` (localhost only)
-- **Authentication/Authorization**: None (assumes usage within a trusted network)
+- **Authentication**: Password-based authentication is enabled by default. On startup, the server prompts for a password (with echo disabled). The password is SHA-256 hashed and stored in memory. Clients hash the password with SHA-256 in the browser before sending. On successful authentication, a session cookie (`catscope_session`) is set. All routes and WebSocket connections require a valid session. Use `--no-password` to disable authentication
 - When `--bind 0.0.0.0` is used, display a warning in the startup message:
   ```
   WARNING: Binding to 0.0.0.0 - all files in /path/to/top_dir will be accessible from any network host.

@@ -691,5 +691,14 @@
         loadDirectory("", fileTree, 0);
         DirWatcher.add("", fileTree, 0);
         WS.connect();
+
+        var logoutBtn = document.getElementById("logout-btn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", function () {
+                fetch("/logout", { method: "POST" }).then(function () {
+                    window.location.href = "/login";
+                });
+            });
+        }
     });
 })();

@@ -23,6 +23,7 @@ func main() {
 	directory := flag.String("directory", "", "Directory to serve files from (default: current directory)")
 	showVersion := flag.Bool("version", false, "Display version and exit")
 	systemUpdate := flag.Bool("system-update", false, "Self-update the binary to the latest release")
+	noPassword := flag.Bool("no-password", false, "Skip password authentication")
 
 	flag.StringVar(bind, "o", "127.0.0.1", "IP address to bind to (shorthand)")
 	flag.IntVar(port, "p", 4567, "Port number to listen on (shorthand)")
@@ -76,6 +77,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	var auth *authState
+	if *noPassword {
+		auth = newAuthState(false, "")
+		fmt.Println("WARNING: Running without password authentication.")
+	} else {
+		passwordHash, err := promptPassword()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		auth = newAuthState(true, passwordHash)
+	}
+
 	addr := fmt.Sprintf("%s:%d", *bind, *port)
 
 	fmt.Printf("Catscope v%s\n", version)
@@ -89,10 +103,10 @@ func main() {
 	watcher := newWatcherHub()
 	defer watcher.close()
 
-	mux := setupRoutes(topDir, watcher)
+	mux := setupRoutes(topDir, watcher, auth)
 
 	slog.Info("starting server", "addr", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	if err := http.ListenAndServe(addr, authMiddleware(auth, mux)); err != nil {
 		slog.Error("server error", "error", err)
 		os.Exit(1)
 	}

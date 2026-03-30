@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
-    <div id="header">Catscope <span id="header-version">{{.Version}}</span></div>
+    <div id="header">Catscope <span id="header-version">{{.Version}}</span>{{if .AuthEnabled}}<button id="logout-btn">Logout</button>{{end}}</div>
     <div id="container">
         <div id="sidebar">
             <ul id="file-tree" class="dir-list"></ul>

@@ -15,21 +15,24 @@ import (
 	"strings"
 )
 
-func setupRoutes(topDir string, watcher *watcherHub) *http.ServeMux {
+func setupRoutes(topDir string, watcher *watcherHub, auth *authState) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /", handleIndex())
+	mux.HandleFunc("GET /", handleIndex(auth))
 	mux.HandleFunc("GET /file/{path...}", handleFile(topDir))
 	mux.HandleFunc("GET /preview/{path...}", handlePreview(topDir))
 	mux.HandleFunc("GET /save/{path...}", handleSave(topDir))
 	mux.HandleFunc("GET /api/lsdir/{path...}", handleLsdir(topDir))
 	mux.HandleFunc("GET /ws", handleWebSocket(topDir, watcher))
 	mux.HandleFunc("GET /assets/", handleAssets())
+	mux.HandleFunc("GET /login", handleLoginPage(auth))
+	mux.HandleFunc("POST /login", handleLoginSubmit(auth))
+	mux.HandleFunc("POST /logout", handleLogout(auth))
 
 	return mux
 }
 
-func handleIndex() http.HandlerFunc {
+func handleIndex(auth *authState) http.HandlerFunc {
 	data, err := frontendFS.ReadFile("frontend/index.html")
 	if err != nil {
 		slog.Error("failed to read index.html", "error", err)
@@ -40,7 +43,8 @@ func handleIndex() http.HandlerFunc {
 	}
 
 	type indexData struct {
-		Version string
+		Version     string
+		AuthEnabled bool
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +53,7 @@ func handleIndex() http.HandlerFunc {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		tmpl.Execute(w, indexData{Version: "v" + version})
+		tmpl.Execute(w, indexData{Version: "v" + version, AuthEnabled: auth.enabled})
 	}
 }
 

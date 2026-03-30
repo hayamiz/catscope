@@ -4,7 +4,7 @@ A web-based file browser for remote development servers. Serves files from the c
 
 ## Specification
 
-The authoritative specification is [SPEC.md](SPEC.md). Always consult it for behavioral details.
+The authoritative specification is [SPEC.md](SPEC.md). Always consult it for behavioral details. When adding or changing features, update SPEC.md to reflect the new behavior.
 
 ## Task Tracking
 

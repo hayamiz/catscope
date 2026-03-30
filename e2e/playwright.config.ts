@@ -11,7 +11,7 @@ export default defineConfig({
     headless: true,
   },
   webServer: {
-    command: `cd .. && go build -o catscope . && cd e2e/testdata && ../../catscope --port ${port}`,
+    command: `cd .. && go build -o catscope . && cd e2e/testdata && ../../catscope --port ${port} --no-password`,
     url: `http://127.0.0.1:${port}`,
     reuseExistingServer: false,
     timeout: 15000,
