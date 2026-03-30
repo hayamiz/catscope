@@ -1,5 +1,24 @@
 # Catscope Release Notes
 
+## v2.3.0 (2026-03-30)
+
+File tree stability and display version in header.
+
+### Features
+
+- Display version number in the page header
+- CSV/TSV table viewer with sortable columns and striped rows
+
+### Bug Fixes
+
+- Preserve expanded directory state when the file tree is refreshed via WebSocket (e.g., when a file is created or deleted in an open directory)
+- Gracefully handle deletion of an expanded directory without JS errors
+- Guard against non-JSON API responses for deleted directories
+
+### Developer Experience
+
+- New e2e tests for expanded directory state preservation (2 tests)
+
 ## v2.2.0 (2026-03-25)
 
 New CLI options, content-based text detection, and self-update support.

@@ -114,6 +114,124 @@ test.describe("Directory Browsing", () => {
     await expect(tempFileEntry).not.toBeVisible({ timeout: 5000 });
   });
 
+  test("should preserve expanded subdirectory state on dir_changed refresh", async ({
+    page,
+  }) => {
+    const testDir = path.join(__dirname, "..", "testdata", "subdir");
+    const nestedDir = path.join(testDir, "nested-dir");
+    const nestedFile = path.join(nestedDir, "deep.txt");
+    const triggerFile = path.join(testDir, "trigger-file.txt");
+
+    // Set up nested directory structure
+    if (!fs.existsSync(nestedDir)) fs.mkdirSync(nestedDir, { recursive: true });
+    fs.writeFileSync(nestedFile, "deep content\n");
+    if (fs.existsSync(triggerFile)) fs.unlinkSync(triggerFile);
+
+    try {
+      await page.goto("/");
+
+      // Expand subdir
+      const subdirEntry = page
+        .locator("#file-tree > li > .dir-entry .name", { hasText: "subdir" })
+        .first();
+      await subdirEntry.waitFor();
+      await subdirEntry.click();
+
+      // Wait for subdir contents to load
+      const nestedDirEntry = page.locator(".dir-children .dir-entry .name", {
+        hasText: "nested-dir",
+      });
+      await expect(nestedDirEntry).toBeVisible({ timeout: 5000 });
+
+      // Expand nested-dir
+      await nestedDirEntry.click();
+
+      // Verify deep.txt is visible inside nested-dir
+      const deepFile = page.locator(".dir-children .dir-children .dir-entry .name", {
+        hasText: "deep.txt",
+      });
+      await expect(deepFile).toBeVisible({ timeout: 5000 });
+
+      // Create a new file in subdir to trigger dir_changed
+      fs.writeFileSync(triggerFile, "trigger\n");
+
+      // Wait for the new file to appear (confirms dir_changed was processed)
+      const triggerEntry = page.locator(".dir-children .dir-entry .name", {
+        hasText: "trigger-file.txt",
+      });
+      await expect(triggerEntry).toBeVisible({ timeout: 5000 });
+
+      // Verify nested-dir is still expanded and deep.txt is still visible
+      await expect(deepFile).toBeVisible({ timeout: 5000 });
+    } finally {
+      if (fs.existsSync(triggerFile)) fs.unlinkSync(triggerFile);
+      if (fs.existsSync(nestedFile)) fs.unlinkSync(nestedFile);
+      if (fs.existsSync(nestedDir)) fs.rmdirSync(nestedDir);
+    }
+  });
+
+  test("should handle deleted expanded directory gracefully", async ({
+    page,
+  }) => {
+    const testDir = path.join(__dirname, "..", "testdata", "subdir");
+    const tempDir = path.join(testDir, "temp-dir");
+    const tempFile = path.join(tempDir, "inside.txt");
+
+    // Set up temp directory
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+    fs.writeFileSync(tempFile, "inside content\n");
+
+    try {
+      await page.goto("/");
+
+      // Listen for JS errors
+      const jsErrors: string[] = [];
+      page.on("pageerror", (err) => jsErrors.push(err.message));
+
+      // Expand subdir
+      const subdirEntry = page
+        .locator("#file-tree > li > .dir-entry .name", { hasText: "subdir" })
+        .first();
+      await subdirEntry.waitFor();
+      await subdirEntry.click();
+
+      // Wait for temp-dir to appear
+      const tempDirEntry = page.locator(".dir-children .dir-entry .name", {
+        hasText: "temp-dir",
+      });
+      await expect(tempDirEntry).toBeVisible({ timeout: 5000 });
+
+      // Expand temp-dir
+      await tempDirEntry.click();
+
+      // Verify inside.txt is visible
+      const insideFile = page.locator(".dir-children .dir-children .dir-entry .name", {
+        hasText: "inside.txt",
+      });
+      await expect(insideFile).toBeVisible({ timeout: 5000 });
+
+      // Delete the expanded directory
+      fs.unlinkSync(tempFile);
+      fs.rmdirSync(tempDir);
+
+      // The directory should disappear from the tree
+      await expect(tempDirEntry).not.toBeVisible({ timeout: 5000 });
+
+      // subdir should still be expanded (nested.txt should be visible)
+      const nestedTxt = page.locator(".dir-children .dir-entry .name", {
+        hasText: "nested.txt",
+      });
+      await expect(nestedTxt).toBeVisible({ timeout: 5000 });
+
+      // No JS errors should have occurred
+      expect(jsErrors).toEqual([]);
+    } finally {
+      // Clean up in case test failed before deletion
+      if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
+      if (fs.existsSync(tempDir)) fs.rmdirSync(tempDir);
+    }
+  });
+
   test("should auto-refresh root directory when a file is created", async ({
     page,
   }) => {

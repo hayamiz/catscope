@@ -459,7 +459,16 @@
         refresh: function (path) {
             var entry = this.dirs[path];
             if (entry) {
-                loadDirectory(path, entry.ul, entry.level);
+                // Collect expanded descendant paths before refresh
+                var expandedChildren = [];
+                var prefix = path === "" ? "" : path + "/";
+                var allPaths = Object.keys(this.dirs);
+                for (var i = 0; i < allPaths.length; i++) {
+                    if (allPaths[i] !== path && allPaths[i].indexOf(prefix) === 0) {
+                        expandedChildren.push(allPaths[i]);
+                    }
+                }
+                loadDirectory(path, entry.ul, entry.level, expandedChildren);
             }
         },
 
@@ -532,9 +541,12 @@
     };
 
     // ---- File Tree ----
-    function loadDirectory(path, parentUl, level) {
+    function loadDirectory(path, parentUl, level, expandedChildren) {
         fetch("/api/lsdir/" + path)
-            .then(function (r) { return r.json(); })
+            .then(function (r) {
+                if (!r.ok) return [];
+                return r.json();
+            })
             .then(function (entries) {
                 parentUl.innerHTML = "";
                 for (var i = 0; i < entries.length; i++) {
@@ -612,6 +624,63 @@
 
                     li.appendChild(div);
                     parentUl.appendChild(li);
+                }
+
+                // Re-expand previously expanded subdirectories
+                if (expandedChildren && expandedChildren.length > 0) {
+                    var expandedSet = {};
+                    for (var i = 0; i < expandedChildren.length; i++) {
+                        expandedSet[expandedChildren[i]] = true;
+                    }
+
+                    // Build a map of entry path -> index for directories in this response
+                    var dirEntryIndices = {};
+                    for (var i = 0; i < entries.length; i++) {
+                        if (entries[i].type === "dir") {
+                            dirEntryIndices[entries[i].path] = i;
+                        }
+                    }
+
+                    var lis = parentUl.querySelectorAll(":scope > li");
+
+                    for (var i = 0; i < entries.length; i++) {
+                        if (entries[i].type !== "dir") continue;
+                        var entryPath = entries[i].path;
+                        if (!expandedSet[entryPath]) continue;
+
+                        // This directory was previously expanded and still exists
+                        var li = lis[i];
+                        li.setAttribute("data-opened", "true");
+                        var childUl = document.createElement("ul");
+                        childUl.className = "dir-children";
+                        li.appendChild(childUl);
+
+                        // Collect descendant expanded paths for recursive re-expansion
+                        var subPrefix = entryPath + "/";
+                        var subExpanded = [];
+                        for (var j = 0; j < expandedChildren.length; j++) {
+                            if (expandedChildren[j] !== entryPath && expandedChildren[j].indexOf(subPrefix) === 0) {
+                                subExpanded.push(expandedChildren[j]);
+                            }
+                        }
+
+                        loadDirectory(entryPath, childUl, level + 1, subExpanded.length > 0 ? subExpanded : undefined);
+                        DirWatcher.add(entryPath, childUl, level + 1);
+                    }
+
+                    // Clean up expanded paths whose directories no longer exist
+                    var prefix = path === "" ? "" : path + "/";
+                    for (var i = 0; i < expandedChildren.length; i++) {
+                        var childPath = expandedChildren[i];
+                        // Find the immediate child directory name
+                        var rest = childPath.substring(prefix.length);
+                        var slashIdx = rest.indexOf("/");
+                        var immediatePath = slashIdx === -1 ? childPath : prefix + rest.substring(0, slashIdx);
+                        if (dirEntryIndices[immediatePath] === undefined) {
+                            DirWatcher.remove(childPath);
+                            WS.send({ type: "unwatch_dir", path: childPath });
+                        }
+                    }
                 }
             });
     }
