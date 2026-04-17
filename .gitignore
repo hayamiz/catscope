@@ -5,6 +5,10 @@ releases/
 # IDE / tool
 .claude/
 
+# Devcontainer persistent state
+.devcontainer/claude-projects/
+.devcontainer/claude-sessions/
+
 # Node (e2e tests)
 e2e/node_modules/
 e2e/test-results/
@@ -13,3 +17,7 @@ e2e/playwright-report/
 # Go
 coverage.out
 catscope-linux-amd64
+
+
+# APM dependencies
+apm_modules/
