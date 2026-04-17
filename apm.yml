@@ -1,0 +1,11 @@
+name: catscope
+version: 1.0.0
+description: APM project for catscope
+author: Yuto Hayamizu
+dependencies:
+  apm:
+  - hayamiz/hayamiz-skills/commit-all
+  - hayamiz/hayamiz-skills/commit-session
+  - hayamiz/hayamiz-skills/gardener
+  mcp: []
+scripts: {}

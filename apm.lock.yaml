@@ -1,0 +1,31 @@
+lockfile_version: '1'
+generated_at: '2026-04-17T21:54:49.948369+00:00'
+apm_version: 0.8.11
+dependencies:
+- repo_url: hayamiz/hayamiz-skills
+  host: github.com
+  resolved_commit: 002fbe8b84635a343de0b7196f02a3513a3873e0
+  virtual_path: commit-all
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/commit-all
+  content_hash: sha256:1941be2793e07bf60889bd30f259bf9dc32188e0762e21b99acd302671bd620b
+- repo_url: hayamiz/hayamiz-skills
+  host: github.com
+  resolved_commit: 002fbe8b84635a343de0b7196f02a3513a3873e0
+  virtual_path: commit-session
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/commit-session
+  content_hash: sha256:3dae5297352c41e7266c5ea3965856f67d14c1a9b9499b548d34012783591a19
+- repo_url: hayamiz/hayamiz-skills
+  host: github.com
+  resolved_commit: 002fbe8b84635a343de0b7196f02a3513a3873e0
+  virtual_path: gardener
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .claude/skills/gardener
+  content_hash: sha256:80b9fca4d781a8f3ded7056f446ef4a565a202cf3b5a3993b1158863fb0f3280
