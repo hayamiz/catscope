@@ -4,11 +4,20 @@ A web-based file browser for remote development servers. Serves files from the c
 
 ## Specification
 
-The authoritative specification is [SPEC.md](SPEC.md). Always consult it for behavioral details. When adding or changing features, update SPEC.md to reflect the new behavior.
+The authoritative specification is [SPEC.md](doc/SPEC.md). Always consult it for behavioral details. When adding or changing features, update SPEC.md to reflect the new behavior.
 
 ## Task Tracking
 
 Implementation tasks are tracked in [TASK.md](TASK.md). When an implementation task is completed, check off the corresponding item in TASK.md.
+
+## Issue Management
+
+Issues (bugs, features, tasks) are tracked as individual Markdown files in `doc/issues/`. Detailed rules are defined in [doc/issues/CLAUDE.md](doc/issues/CLAUDE.md).
+
+- **File naming**: `NNNN-<subject>.md` (e.g., `0001-fix-websocket-reconnect.md`)
+- **Statuses**: `open` → `in-progress` → `resolved` / `wontfix` (also `blocked`)
+- **Resolved issues** are moved to `doc/issues/resolved/`.
+- **Skills**: Use `/issue-create`, `/issue-triage`, `/issue-fix`, `/issue-check` for issue operations.
 
 ## Language & Style
 
@@ -45,9 +54,13 @@ catscope/
 │   ├── package.json
 │   ├── playwright.config.ts
 │   └── tests/
+├── doc/
+│   ├── SPEC.md          # Authoritative specification
+│   ├── OLD_SPEC.md      # Previous specification (archived)
+│   └── issues/          # Issue tracking (see doc/issues/CLAUDE.md)
+│       └── resolved/    # Resolved/wontfix issues archive
 ├── go.mod
 ├── go.sum
-├── SPEC.md              # Authoritative specification
 ├── TASK.md              # Implementation task tracking
 └── CLAUDE.md            # This file
 ```
