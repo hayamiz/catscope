@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"golang.org/x/term"
 )
 
 //go:embed frontend
@@ -17,6 +19,12 @@ var frontendFS embed.FS
 // Defaults to "dev" for development builds.
 var version = "dev"
 
+const banner = `  =^..^=
+ ╔═╗┌─┐┌┬┐┌─┐┌─┐┌─┐┌─┐┌─┐
+ ║  ├─┤ │ └─┐│  │ │├─┘├┤
+ ╚═╝┴ ┴ ┴ └─┘└─┘└─┘┴  └─┘
+`
+
 func main() {
 	bind := flag.String("bind", "127.0.0.1", "IP address to bind to")
 	port := flag.Int("port", 4567, "Port number to listen on")
@@ -24,8 +32,10 @@ func main() {
 	showVersion := flag.Bool("version", false, "Display version and exit")
 	systemUpdate := flag.Bool("system-update", false, "Self-update the binary to the latest release")
 	noPassword := flag.Bool("no-password", false, "Skip password authentication")
+	quiet := flag.Bool("quiet", false, "Suppress startup banner")
 
 	flag.StringVar(bind, "o", "127.0.0.1", "IP address to bind to (shorthand)")
+	flag.BoolVar(quiet, "q", false, "Suppress startup banner (shorthand)")
 	flag.IntVar(port, "p", 4567, "Port number to listen on (shorthand)")
 	flag.StringVar(directory, "C", "", "Directory to serve files from (shorthand)")
 	flag.BoolVar(showVersion, "v", false, "Display version and exit (shorthand)")
@@ -91,6 +101,10 @@ func main() {
 	}
 
 	addr := fmt.Sprintf("%s:%d", *bind, *port)
+
+	if !*quiet && term.IsTerminal(int(os.Stderr.Fd())) {
+		fmt.Fprint(os.Stderr, banner)
+	}
 
 	fmt.Printf("Catscope v%s\n", version)
 	fmt.Printf("Serving files from: %s\n", topDir)
