@@ -40,6 +40,7 @@ Starts the server and makes files under the current directory browsable via a we
 | `--version` | `-v` | - | Display version and exit | ✅ |
 | `--system-update` | - | - | Self-update the binary to the latest release (see Section 12) | ✅ |
 | `--no-password` | - | - | Skip password authentication (server starts without prompting for a password) | ✅ |
+| `--quiet` | `-q` | - | Suppress the startup ASCII art banner | ✅ |
 
 ### 2.3 Root Directory ✅
 
@@ -47,7 +48,7 @@ By default, the absolute path of the current working directory at server startup
 
 ### 2.4 Startup Output ✅
 
-The following information is printed to stdout at startup:
+When stderr is a terminal and `--quiet` is not set, an ASCII art banner is printed to stderr before the informational output. The following information is then printed to stdout:
 
 ```
 Catscope v2.x.x
@@ -110,6 +111,21 @@ Returns the file for download.
 - **Content-Type**: `application/octet-stream`
 - **Content-Disposition**: `attachment; filename="{filename}"`
 - **Response**: Raw file data
+
+#### `GET /render/{path...}`
+
+Returns a pretty-printed/rendered view of a text file as HTML.
+
+- **Path Resolution**: Same as `/file/`
+- **Content-Type**: `text/html; charset=utf-8`
+- **File size limit**: 10 MB. Files exceeding this limit return `413 Request Entity Too Large` with a JSON error body: `{"error": "file_too_large", "message": "..."}`
+- **Rendering by file type**:
+  - Markdown (`.md`): Converted to HTML via goldmark, sanitized via bluemonday (XSS prevention)
+  - JSON (`.json`): Pretty-printed with 2-space indentation
+  - YAML (`.yaml`, `.yml`): Displayed as plain preformatted text
+  - Source code (`.go`, `.py`, `.js`, `.c`, `.sql`, `.css`, `.html`, `.xml`, etc.): Syntax-highlighted via chroma (GitHub theme)
+  - Other text files: Plain preformatted text
+- **Errors**: Same as `/file/`
 
 ### 3.3 API Endpoints ✅
 
@@ -304,9 +320,9 @@ Since file change events can fire in rapid succession, debounce notifications fo
 ### 7.2 Page Structure ✅
 
 The main page consists of:
-- Header: App name "Catscope"
-- Sidebar (left): File list (directory tree)
-- Main area (right): Preview window display area
+- Header: App name "Catscope", version, font selector dropdown, grid-snap toggle, tile windows button, close all windows button, optional logout button
+- Sidebar (left): File list (directory tree), resizable via drag handle
+- Main area (right): Preview window display area with optional grid overlay
 
 ### 7.3 File List (Directory Tree) ✅
 
@@ -339,6 +355,7 @@ Clicking a file name in the file list generates a preview window.
 1. **Title Bar**:
    - File path display (truncated with ellipsis if too long)
    - Clipboard copy button (shown only for text files)
+   - Raw/pretty toggle button (shown only for renderable text files: `.md`, `.json`, `.yaml`, `.yml`, source code, etc.). Default mode is raw. Toggles between `/preview/` (raw) and `/render/` (pretty) endpoints
    - Close button
 2. **Content Area**: Display area for file contents
 
@@ -400,6 +417,17 @@ An object that manages multiple preview windows.
 - **Create Windows**: `create(path)` - Creates a PreviewWindow and adds it to management
 - **z-index Management**: Moves the clicked window to the end of the array and assigns z-index in array order
 - **Reload by Path**: `reloadByPath(path)` - Reloads all windows matching the specified path
+- **Close All**: `closeAll()` - Closes every open preview window
+- **Tile Windows**: `tileWindows()` - Arranges all open windows in a balanced grid layout filling the main area. Algorithm: `rows = ceil(sqrt(n))`, `cols = ceil(n / rows)`
+
+### 7.5.1 Grid Snap ✅
+
+Window drag and resize operations snap to a configurable grid (default 50px).
+
+- **Snap calculation**: `snapped = Math.round(value / GRID_SIZE) * GRID_SIZE`
+- **Default state**: ON
+- **Toggle**: Header button toggles grid snap on/off
+- **Visual overlay**: When grid snap is active, a subtle grid overlay is displayed on the main area via CSS `repeating-linear-gradient`
 
 ### 7.6 WebSocket Connection Management ✅
 
@@ -441,12 +469,12 @@ To improve visibility of small EPS images, DPI is automatically adjusted based o
 
 ---
 
-## 9. UI Styling ⚠️
+## 9. UI Styling ✅
 
-### 9.1 Overall Layout ⚠️
+### 9.1 Overall Layout ✅
 
 - **Layout**: Two-column with sidebar (file list) + main area (preview windows) ✅
-- **Sidebar Width**: 300px (resizable) — ❌ resize handle not yet implemented
+- **Sidebar Width**: 300px (resizable via drag handle, min 150px, max 600px) ✅
 - **Font**: System font stack (`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`) ✅
 
 ### 9.2 Color Palette ✅
@@ -528,8 +556,10 @@ GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o catscope-windows-amd64.ex
 |---|---|
 | `nhooyr.io/websocket` | WebSocket server |
 | `github.com/fsnotify/fsnotify` | File system monitoring |
-
-All other dependencies use Go standard library only (`net/http`, `html/template`, `encoding/json`, `crypto/md5`, `flag`, `path/filepath`, `os/exec`, etc.).
+| `golang.org/x/term` | Terminal detection (startup banner) |
+| `github.com/yuin/goldmark` | Markdown to HTML rendering |
+| `github.com/alecthomas/chroma/v2` | Syntax highlighting |
+| `github.com/microcosm-cc/bluemonday` | HTML sanitization (XSS prevention) |
 
 ---
 

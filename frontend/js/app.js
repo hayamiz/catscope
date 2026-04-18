@@ -37,6 +37,59 @@
         return ext === ".csv" || ext === ".tsv";
     }
 
+    // ---- Grid Snap ----
+    var GRID_SIZE = 50;
+    var gridSnapEnabled = true;
+
+    function snap(value) {
+        if (!gridSnapEnabled) return value;
+        return Math.round(value / GRID_SIZE) * GRID_SIZE;
+    }
+
+    // ---- Font Management ----
+    var FONT_FAMILIES = {
+        "Fira Code": '"Fira Code"',
+        "Ubuntu Mono": '"Ubuntu Mono"',
+        "Victor Mono": '"Victor Mono"'
+    };
+
+    var FONT_FACE_CSS = [
+        '@font-face { font-family: "Fira Code"; src: url("/assets/fonts/FiraCode-VF.woff2") format("woff2-variations"); font-weight: 300 700; font-style: normal; font-display: swap; }',
+        '@font-face { font-family: "Ubuntu Mono"; src: url("/assets/fonts/UbuntuMono-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }',
+        '@font-face { font-family: "Ubuntu Mono"; src: url("/assets/fonts/UbuntuMono-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }',
+        '@font-face { font-family: "Ubuntu Mono"; src: url("/assets/fonts/UbuntuMono-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }',
+        '@font-face { font-family: "Ubuntu Mono"; src: url("/assets/fonts/UbuntuMono-BoldItalic.woff2") format("woff2"); font-weight: 700; font-style: italic; font-display: swap; }',
+        '@font-face { font-family: "Victor Mono"; src: url("/assets/fonts/VictorMono-VF.woff2") format("woff2-variations"); font-weight: 100 700; font-style: normal; font-display: swap; }',
+        '@font-face { font-family: "Victor Mono"; src: url("/assets/fonts/VictorMono-Italic-VF.woff2") format("woff2-variations"); font-weight: 100 700; font-style: italic; font-display: swap; }'
+    ].join("\n");
+
+    function getSelectedFont() {
+        try {
+            return localStorage.getItem("catscope-font") || "Fira Code";
+        } catch (_) {
+            return "Fira Code";
+        }
+    }
+
+    function applyFont(fontName) {
+        var family = FONT_FAMILIES[fontName] || '"Fira Code"';
+        var value = family + ', "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace';
+        document.documentElement.style.setProperty("--catscope-mono-font", value);
+        try { localStorage.setItem("catscope-font", fontName); } catch (_) {}
+    }
+
+    function injectFontIntoIframe(iframe) {
+        try {
+            var doc = iframe.contentDocument;
+            if (!doc) return;
+            var style = doc.createElement("style");
+            var fontName = getSelectedFont();
+            var family = FONT_FAMILIES[fontName] || '"Fira Code"';
+            style.textContent = FONT_FACE_CSS + "\nbody, pre { font-family: " + family + ', "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }';
+            doc.head.appendChild(style);
+        } catch (_) {}
+    }
+
     // ---- Toast ----
     function showToast(message) {
         var el = document.createElement("div");
@@ -116,17 +169,56 @@
             var offset = (this.nextOffset % 10) * 30;
             this.nextOffset++;
             return offset;
+        },
+
+        closeAll: function () {
+            while (this.windows.length > 0) {
+                this.windows[this.windows.length - 1].close();
+            }
+        },
+
+        tileWindows: function () {
+            var n = this.windows.length;
+            if (n === 0) return;
+            var main = document.getElementById("main");
+            var W = main.offsetWidth;
+            var H = main.offsetHeight;
+            var rows = Math.ceil(Math.sqrt(n));
+            var cols = Math.ceil(n / rows);
+            var cellW = Math.floor(W / cols);
+            var cellH = Math.floor(H / rows);
+            for (var i = 0; i < n; i++) {
+                var col = i % cols;
+                var row = Math.floor(i / cols);
+                var win = this.windows[i];
+                win.el.style.left = (col * cellW) + "px";
+                win.el.style.top = (row * cellH) + "px";
+                win.el.style.width = cellW + "px";
+                win.el.style.height = cellH + "px";
+            }
         }
     };
+
+    var RENDERABLE_EXTENSIONS = [
+        ".md", ".json", ".yaml", ".yml",
+        ".go", ".py", ".js", ".c", ".sql", ".css", ".html", ".xml",
+        ".toml", ".log", ".txt", ".csv", ".tsv"
+    ];
+
+    function isRenderable(path) {
+        return RENDERABLE_EXTENSIONS.indexOf(getExtension(path)) !== -1;
+    }
 
     // ---- PreviewWindow ----
     function PreviewWindow(path) {
         this.path = path;
         this.textContent = null;
         this.isText = false;
+        this.prettyMode = false;
         this.el = null;
         this.contentEl = null;
         this.copyBtnContainer = null;
+        this.renderToggleBtn = null;
         this.init();
     }
 
@@ -153,6 +245,21 @@
         this.copyBtnContainer = document.createElement("span");
         titleBar.appendChild(this.copyBtnContainer);
         this.detectTextAndEnableCopy();
+
+        // Render toggle button (shown only for renderable file types)
+        if (isRenderable(this.path)) {
+            this.renderToggleBtn = document.createElement("button");
+            this.renderToggleBtn.className = "btn render-toggle";
+            this.renderToggleBtn.title = "Toggle raw/pretty view";
+            this.renderToggleBtn.textContent = "{ }";
+            this.renderToggleBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                self.prettyMode = !self.prettyMode;
+                self.renderToggleBtn.classList.toggle("active", self.prettyMode);
+                self.loadContent();
+            });
+            titleBar.appendChild(this.renderToggleBtn);
+        }
 
         // Close button
         var closeBtn = document.createElement("button");
@@ -202,6 +309,14 @@
         var ts = Date.now();
         this.contentEl.innerHTML = "";
 
+        if (this.prettyMode && isRenderable(this.path)) {
+            var iframe = document.createElement("iframe");
+            iframe.onload = function () { injectFontIntoIframe(iframe); };
+            iframe.src = "/render/" + this.path + "?t=" + ts;
+            this.contentEl.appendChild(iframe);
+            return;
+        }
+
         if (isEPS(this.path)) {
             var img = document.createElement("img");
             img.src = "/preview/" + this.path + "?t=" + ts;
@@ -230,6 +345,7 @@
             this.loadCSVContent();
         } else {
             var iframe = document.createElement("iframe");
+            iframe.onload = function () { injectFontIntoIframe(iframe); };
             iframe.src = "/preview/" + this.path + "?t=" + ts;
             this.contentEl.appendChild(iframe);
         }
@@ -403,8 +519,8 @@
             handle.setPointerCapture(e.pointerId);
 
             function onMove(e) {
-                self.el.style.left = (origLeft + e.clientX - startX) + "px";
-                self.el.style.top = (origTop + e.clientY - startY) + "px";
+                self.el.style.left = snap(origLeft + e.clientX - startX) + "px";
+                self.el.style.top = snap(origTop + e.clientY - startY) + "px";
             }
             function onUp(e) {
                 handle.releasePointerCapture(e.pointerId);
@@ -429,8 +545,8 @@
             handle.setPointerCapture(e.pointerId);
 
             function onMove(e) {
-                var w = Math.max(200, origW + e.clientX - startX);
-                var h = Math.max(100, origH + e.clientY - startY);
+                var w = Math.max(200, snap(origW + e.clientX - startX));
+                var h = Math.max(100, snap(origH + e.clientY - startY));
                 self.el.style.width = w + "px";
                 self.el.style.height = h + "px";
             }
@@ -691,6 +807,56 @@
         loadDirectory("", fileTree, 0);
         DirWatcher.add("", fileTree, 0);
         WS.connect();
+
+        // Font selector
+        var fontSelector = document.getElementById("font-selector");
+        var savedFont = getSelectedFont();
+        fontSelector.value = savedFont;
+        applyFont(savedFont);
+        fontSelector.addEventListener("change", function () {
+            applyFont(fontSelector.value);
+        });
+
+        // Window management buttons
+        document.getElementById("tile-btn").addEventListener("click", function () {
+            WindowManager.tileWindows();
+        });
+        document.getElementById("close-all-btn").addEventListener("click", function () {
+            WindowManager.closeAll();
+        });
+
+        // Grid snap toggle
+        var gridToggle = document.getElementById("grid-snap-btn");
+        var mainEl = document.getElementById("main");
+        mainEl.classList.add("grid-active");
+        gridToggle.addEventListener("click", function () {
+            gridSnapEnabled = !gridSnapEnabled;
+            gridToggle.classList.toggle("active", gridSnapEnabled);
+            mainEl.classList.toggle("grid-active", gridSnapEnabled);
+        });
+
+        // Sidebar resize
+        var sidebarResizeHandle = document.getElementById("sidebar-resize-handle");
+        var sidebar = document.getElementById("sidebar");
+        sidebarResizeHandle.addEventListener("pointerdown", function (e) {
+            e.preventDefault();
+            sidebarResizeHandle.setPointerCapture(e.pointerId);
+            sidebarResizeHandle.classList.add("active");
+            var startX = e.clientX;
+            var origW = sidebar.offsetWidth;
+            function onMove(e) {
+                var w = Math.min(600, Math.max(150, origW + e.clientX - startX));
+                sidebar.style.width = w + "px";
+            }
+            function onUp(e) {
+                sidebarResizeHandle.releasePointerCapture(e.pointerId);
+                sidebarResizeHandle.classList.remove("active");
+                sidebarResizeHandle.removeEventListener("pointermove", onMove);
+                sidebarResizeHandle.removeEventListener("pointerup", onUp);
+            }
+            sidebarResizeHandle.addEventListener("pointermove", onMove);
+            sidebarResizeHandle.addEventListener("pointerup", onUp);
+        });
 
         var logoutBtn = document.getElementById("logout-btn");
         if (logoutBtn) {

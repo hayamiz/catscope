@@ -7,11 +7,12 @@
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
-    <div id="header">Catscope <span id="header-version">{{.Version}}</span>{{if .AuthEnabled}}<button id="logout-btn">Logout</button>{{end}}</div>
+    <div id="header">Catscope <span id="header-version">{{.Version}}</span><select id="font-selector" title="Select monospace font"><option value="Fira Code">Fira Code</option><option value="Ubuntu Mono">Ubuntu Mono</option><option value="Victor Mono">Victor Mono</option></select><button id="grid-snap-btn" class="header-btn active" title="Toggle grid snap">&#9638;</button><button id="tile-btn" class="header-btn" title="Tile all windows">&#9638;&#9638;</button><button id="close-all-btn" class="header-btn" title="Close all windows">&#10005;</button>{{if .AuthEnabled}}<button id="logout-btn">Logout</button>{{end}}</div>
     <div id="container">
         <div id="sidebar">
             <ul id="file-tree" class="dir-list"></ul>
         </div>
+        <div id="sidebar-resize-handle"></div>
         <div id="main"></div>
     </div>
     <script src="/assets/js/app.js"></script>

@@ -1,3 +1,64 @@
+/* Bundled monospace fonts */
+@font-face {
+    font-family: "Fira Code";
+    src: url("/assets/fonts/FiraCode-VF.woff2") format("woff2-variations");
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Ubuntu Mono";
+    src: url("/assets/fonts/UbuntuMono-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Ubuntu Mono";
+    src: url("/assets/fonts/UbuntuMono-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Ubuntu Mono";
+    src: url("/assets/fonts/UbuntuMono-Italic.woff2") format("woff2");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Ubuntu Mono";
+    src: url("/assets/fonts/UbuntuMono-BoldItalic.woff2") format("woff2");
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Victor Mono";
+    src: url("/assets/fonts/VictorMono-VF.woff2") format("woff2-variations");
+    font-weight: 100 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Victor Mono";
+    src: url("/assets/fonts/VictorMono-Italic-VF.woff2") format("woff2-variations");
+    font-weight: 100 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+:root {
+    --catscope-mono-font: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -41,6 +102,68 @@ body {
     overflow-y: auto;
     border-right: 1px solid #ddd;
     flex-shrink: 0;
+}
+
+/* Font selector */
+#font-selector {
+    margin-left: 12px;
+    padding: 2px 6px;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 3px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    cursor: pointer;
+}
+
+#font-selector option {
+    color: #333;
+    background: #fff;
+}
+
+/* Header action buttons */
+.header-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.5);
+    color: #fff;
+    padding: 2px 8px;
+    font-size: 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 12px;
+    opacity: 0.6;
+}
+
+.header-btn:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: #fff;
+    opacity: 1;
+}
+
+.header-btn.active {
+    opacity: 1;
+    background: rgba(255,255,255,0.2);
+    border-color: #fff;
+}
+
+/* Grid overlay on main area */
+#main.grid-active {
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(0,0,0,0.06) 49px, rgba(0,0,0,0.06) 50px),
+        repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(0,0,0,0.06) 49px, rgba(0,0,0,0.06) 50px);
+    background-size: 50px 50px;
+}
+
+#sidebar-resize-handle {
+    width: 5px;
+    cursor: col-resize;
+    background: transparent;
+    flex-shrink: 0;
+}
+
+#sidebar-resize-handle:hover,
+#sidebar-resize-handle.active {
+    background: #008CBA;
 }
 
 #main {
@@ -161,6 +284,18 @@ body {
     filter: brightness(0) invert(1);
 }
 
+.preview-titlebar .render-toggle {
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+}
+
+.preview-titlebar .render-toggle.active {
+    color: #fff;
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+}
+
 .preview-content {
     flex: 1;
     overflow: hidden;
@@ -212,7 +347,7 @@ body {
     border-collapse: collapse;
     width: 100%;
     font-size: 13px;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-family: var(--catscope-mono-font);
 }
 
 .csv-table th {
