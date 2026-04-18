@@ -32,6 +32,9 @@ Open [http://localhost:4567](http://localhost:4567/) in your browser. Files in t
 |---|---|---|---|
 | `--bind ADDRESS` | `-o` | `127.0.0.1` | IP address to bind to |
 | `--port PORT` | `-p` | `4567` | Port number to listen on |
+| `--directory DIR` | `-C` | Current directory | Directory to serve files from |
+| `--no-password` | — | — | Skip password authentication |
+| `--system-update` | — | — | Self-update the binary to the latest release |
 | `--version` | `-v` | — | Display version and exit |
 
 ### Binding to all interfaces

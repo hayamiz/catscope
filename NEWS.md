@@ -1,5 +1,34 @@
 # Catscope Release Notes
 
+## v2.4.0 (2026-04-18)
+
+Pretty-print preview, window management overhaul, bundled coding fonts, and password authentication.
+
+### Features
+
+- `/render/` endpoint for pretty-printed file preview: Markdown (with GFM table support), JSON pretty-print, syntax highlighting via Chroma, YAML passthrough (#0003)
+- Raw/pretty toggle button on text preview windows with SVG code icon (#0003, #0015)
+- Password authentication with auto-generated token and `--no-password` opt-out
+- Sidebar resize handle with min/max width constraints (#0008)
+- Window grid snap with 50px grid and toggle button (#0007)
+- Workspace management buttons: "Close All" and "Tile Windows" for arranging open previews (#0004)
+- Font selector with three bundled coding webfonts: Fira Code, Ubuntu Mono, Victor Mono (#0005)
+- ASCII art startup banner with `--quiet` flag to suppress it (#0010)
+- Improved install script with root/XDG/`CATSCOPE_INSTALL_DIR` destination priority (#0009)
+
+### Bug Fixes
+
+- Apply font changes to already-open preview windows (#0019)
+- Enable GFM extensions so Markdown tables render correctly (#0017)
+
+### Developer Experience
+
+- Bundled `THIRD_PARTY_LICENSES` file for included webfonts (#0013)
+- New e2e tests: render toggle, grid snap, sidebar resize, workspace actions, font selector (22 tests across 5 files)
+- New Go unit tests: `render_test.go` (10 tests), `banner_test.go`
+- Added `examples/` directory with sample files for manual testing (#0011)
+- Issue tracking framework in `doc/issues/`
+
 ## v2.3.0 (2026-03-30)
 
 File tree stability and display version in header.
