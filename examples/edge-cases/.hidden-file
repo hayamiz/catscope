@@ -1,0 +1,11 @@
+# This is a hidden dotfile (configuration example)
+#
+# Dotfiles are commonly used for tool configuration.
+# A file browser should be able to display these when
+# the user opts to show hidden files.
+
+editor.tabSize = 4
+editor.insertSpaces = true
+editor.wordWrap = off
+files.trimTrailingWhitespace = true
+files.insertFinalNewline = true

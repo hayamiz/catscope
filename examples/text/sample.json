@@ -1,0 +1,35 @@
+{
+  "name": "catscope",
+  "version": "2.1.0",
+  "description": "Web-based file browser for remote servers",
+  "server": {
+    "host": "127.0.0.1",
+    "port": 4567,
+    "readTimeout": "30s",
+    "enableTLS": false,
+    "cors": null
+  },
+  "features": {
+    "websocket": true,
+    "epsConversion": false,
+    "maxFileSize": 10485760,
+    "debounceMs": 100
+  },
+  "mimeOverrides": {
+    ".svg": "image/svg+xml",
+    ".go": "text/plain",
+    ".md": "text/plain"
+  },
+  "recentFiles": [
+    {"path": "src/main.go", "accessedAt": "2026-04-18T08:00:12Z", "size": 2048},
+    {"path": "README.md", "accessedAt": "2026-04-18T07:55:00Z", "size": 512},
+    {"path": "docs/diagram.eps", "accessedAt": null, "size": 0}
+  ],
+  "tags": ["file-browser", "golang", "websocket", "devtools"],
+  "metrics": {
+    "totalRequests": 14823,
+    "avgResponseMs": 2.7,
+    "activeConnections": 3,
+    "errorRate": 0.002
+  }
+}

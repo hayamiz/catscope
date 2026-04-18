@@ -1,0 +1,15 @@
+This file has no extension.
+
+A file browser should handle extensionless files gracefully,
+ideally falling back to plain text display. Common examples
+of extensionless files include:
+
+  - Makefile
+  - Dockerfile
+  - LICENSE
+  - Procfile
+  - Vagrantfile
+  - .gitignore (dotfile, no extension)
+
+The MIME type should default to application/octet-stream or
+text/plain depending on content sniffing.

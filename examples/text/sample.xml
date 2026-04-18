@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Catscope Release Notes</title>
+    <link>https://example.com/catscope</link>
+    <description>Latest releases and updates for Catscope</description>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 18 Apr 2026 08:00:00 GMT</lastBuildDate>
+    <atom:link href="https://example.com/catscope/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Catscope v2.1.0 Released</title>
+      <link>https://example.com/catscope/releases/v2.1.0</link>
+      <pubDate>Fri, 18 Apr 2026 08:00:00 GMT</pubDate>
+      <guid>https://example.com/catscope/releases/v2.1.0</guid>
+      <description>
+        Added window grid snapping, resizable sidebar,
+        and improved WebSocket reconnection logic.
+      </description>
+      <category>release</category>
+    </item>
+    <item>
+      <title>Catscope v2.0.0 Released</title>
+      <link>https://example.com/catscope/releases/v2.0.0</link>
+      <pubDate>Mon, 01 Mar 2026 12:00:00 GMT</pubDate>
+      <guid>https://example.com/catscope/releases/v2.0.0</guid>
+      <description>
+        Major rewrite with Go 1.22 ServeMux patterns,
+        embedded frontend, and real-time file watching.
+      </description>
+      <category>release</category>
+    </item>
+  </channel>
+</rss>

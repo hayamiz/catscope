@@ -1,0 +1,18 @@
+Unicode Content Test / ユニコード内容テスト
+
+This file tests Unicode handling in both filenames and content.
+
+English: The quick brown fox jumps over the lazy dog.
+Japanese: 素早い茶色の狐が怠惰な犬を飛び越える。
+Chinese: 敏捷的棕色狐狸跳过了懒狗。
+Korean: 빠른 갈색 여우가 게으른 개를 뛰어넘는다.
+Emoji: 🦊 → 🐕 (not text, but valid Unicode)
+Math: ∀x ∈ ℝ, x² ≥ 0
+Accented: café, naïve, résumé, Ångström
+
+Special characters that may cause rendering issues:
+  Zero-width space: [​] (U+200B between brackets)
+  En dash: – (U+2013)
+  Em dash: — (U+2014)
+  Ellipsis: … (U+2026)
+  Non-breaking space: [ ] (U+00A0 between brackets)

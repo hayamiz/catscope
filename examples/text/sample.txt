@@ -1,0 +1,24 @@
+Catscope Example — Plain Text Document
+
+This is a sample plain text file used for testing the file browser preview.
+It contains multiple paragraphs, some indentation, and varied formatting to
+exercise the text rendering pipeline.
+
+Key features of the catscope file browser:
+    1. Real-time file change notifications via WebSocket
+    2. Embedded static assets served from memory
+    3. Zero external dependencies for the frontend
+    4. Path traversal protection on all endpoints
+
+    Technical notes:
+        - The server resolves symlinks before checking path boundaries.
+        - EPS conversion is optional and degrades gracefully.
+        - File watching uses fsnotify with 100ms debounce per file.
+
+Below is an indented block to test whitespace preservation:
+
+        func main() {
+            http.ListenAndServe(":4567", nil)
+        }
+
+End of sample text file.

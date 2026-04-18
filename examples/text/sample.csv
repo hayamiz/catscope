@@ -1,0 +1,11 @@
+id,name,language,stars,forks,open_issues,license,created
+1,catscope,Go,342,28,5,MIT,2025-06-15
+2,filetree,Rust,1204,97,12,Apache-2.0,2024-01-20
+3,webview,TypeScript,876,63,8,MIT,2024-09-03
+4,logstream,Python,2150,180,23,BSD-3,2023-11-10
+5,codemap,Go,567,45,3,MIT,2025-02-28
+6,devproxy,Rust,3421,210,31,Apache-2.0,2023-05-14
+7,termshare,C,198,14,1,GPL-3.0,2025-08-22
+8,portfwd,Go,723,52,7,MIT,2024-07-07
+9,dotwatch,Python,445,33,4,BSD-2,2025-01-19
+10,snapserve,TypeScript,1890,142,16,MIT,2024-04-30
