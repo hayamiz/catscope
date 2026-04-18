@@ -17,12 +17,13 @@ import (
 	"github.com/alecthomas/chroma/v2/styles"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
 )
 
 const maxRenderSize = 10 * 1024 * 1024 // 10 MB
 
 func handleRender(topDir string) http.HandlerFunc {
-	md := goldmark.New()
+	md := goldmark.New(goldmark.WithExtensions(extension.GFM))
 	sanitizer := bluemonday.UGCPolicy()
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +80,7 @@ func handleRender(topDir string) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Write([]byte(wrapHTML(rendered)))
 	}
 }
@@ -137,7 +139,7 @@ func wrapHTML(body string) string {
 <style>
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 16px; line-height: 1.6; color: #333; }
 pre { background: #f6f8fa; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 13px; }
-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13px; }
+code { font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13px; }
 table { border-collapse: collapse; margin: 8px 0; }
 th, td { border: 1px solid #ddd; padding: 6px 12px; }
 th { background: #f0f0f0; }

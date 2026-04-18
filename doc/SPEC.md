@@ -118,9 +118,10 @@ Returns a pretty-printed/rendered view of a text file as HTML.
 
 - **Path Resolution**: Same as `/file/`
 - **Content-Type**: `text/html; charset=utf-8`
+- **X-Content-Type-Options**: `nosniff` (prevents browsers from MIME-sniffing the response, ensuring XML and other markup files are rendered as HTML rather than being reinterpreted based on URL extension)
 - **File size limit**: 10 MB. Files exceeding this limit return `413 Request Entity Too Large` with a JSON error body: `{"error": "file_too_large", "message": "..."}`
 - **Rendering by file type**:
-  - Markdown (`.md`): Converted to HTML via goldmark, sanitized via bluemonday (XSS prevention)
+  - Markdown (`.md`): Converted to HTML via goldmark with GFM (GitHub Flavored Markdown) extensions enabled (tables, strikethrough, autolinks, task lists), sanitized via bluemonday (XSS prevention)
   - JSON (`.json`): Pretty-printed with 2-space indentation
   - YAML (`.yaml`, `.yml`): Displayed as plain preformatted text
   - Source code (`.go`, `.py`, `.js`, `.c`, `.sql`, `.css`, `.html`, `.xml`, etc.): Syntax-highlighted via chroma (GitHub theme)
