@@ -2,8 +2,6 @@
 catscope
 releases/
 
-# IDE / tool
-.claude/
 
 # Devcontainer persistent state
 .devcontainer/claude-projects/
