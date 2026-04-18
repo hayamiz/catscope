@@ -21,6 +21,7 @@ func setupRoutes(topDir string, watcher *watcherHub, auth *authState) *http.Serv
 	mux.HandleFunc("GET /", handleIndex(auth))
 	mux.HandleFunc("GET /file/{path...}", handleFile(topDir))
 	mux.HandleFunc("GET /preview/{path...}", handlePreview(topDir))
+	mux.HandleFunc("GET /render/{path...}", handleRender(topDir))
 	mux.HandleFunc("GET /save/{path...}", handleSave(topDir))
 	mux.HandleFunc("GET /api/lsdir/{path...}", handleLsdir(topDir))
 	mux.HandleFunc("GET /ws", handleWebSocket(topDir, watcher))
