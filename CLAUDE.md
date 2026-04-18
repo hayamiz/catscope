@@ -95,6 +95,9 @@ go test -run TestPathResolution ./...
 ```
 
 - Every exported function must have corresponding tests.
+- Every new or modified HTTP handler must have unit tests covering at minimum: success path, 403 (path traversal), 404 (not found), and any error-specific status codes.
+- Every new frontend feature (button, toggle, interaction) must have a corresponding Playwright e2e test.
+- When fixing a bug, add a regression test that reproduces the original scenario.
 - Table-driven tests are preferred.
 - Use `t.Helper()` in test helper functions.
 - Use `testdata/` directories for test fixtures.
