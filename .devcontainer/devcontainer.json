@@ -18,7 +18,8 @@
       "settings": {
         "go.gopath": "/home/ubuntu/go",
         "go.toolsManagement.autoUpdate": true,
-        "claudeCode.allowDangerouslySkipPermissions": true
+        "claudeCode.allowDangerouslySkipPermissions": true,
+        "claudeCode.initialPermissionMode": "bypassPermissions"
       }
     }
   },

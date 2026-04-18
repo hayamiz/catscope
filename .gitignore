@@ -19,3 +19,10 @@ catscope-linux-amd64
 
 # APM dependencies
 apm_modules/
+
+# Local settings & IDE
+.claude/settings.local.json
+.vscode/
+
+# Test artifacts
+test-results/
