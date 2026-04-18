@@ -76,17 +76,32 @@
         var value = family + ', "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace';
         document.documentElement.style.setProperty("--catscope-mono-font", value);
         try { localStorage.setItem("catscope-font", fontName); } catch (_) {}
+
+        // Re-inject font into all open windows' iframes
+        for (var i = 0; i < WindowManager.windows.length; i++) {
+            var win = WindowManager.windows[i];
+            if (win.contentEl) {
+                var iframe = win.contentEl.querySelector("iframe");
+                if (iframe) {
+                    injectFontIntoIframe(iframe);
+                }
+            }
+        }
     }
 
     function injectFontIntoIframe(iframe) {
         try {
             var doc = iframe.contentDocument;
             if (!doc) return;
-            var style = doc.createElement("style");
+            var existing = doc.getElementById("catscope-font-style");
+            var style = existing || doc.createElement("style");
+            style.id = "catscope-font-style";
             var fontName = getSelectedFont();
             var family = FONT_FAMILIES[fontName] || '"Fira Code"';
             style.textContent = FONT_FACE_CSS + "\nbody, pre { font-family: " + family + ', "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }';
-            doc.head.appendChild(style);
+            if (!existing) {
+                doc.head.appendChild(style);
+            }
         } catch (_) {}
     }
 
@@ -250,8 +265,8 @@
         if (isRenderable(this.path)) {
             this.renderToggleBtn = document.createElement("button");
             this.renderToggleBtn.className = "btn render-toggle";
-            this.renderToggleBtn.title = "Toggle raw/pretty view";
-            this.renderToggleBtn.textContent = "{ }";
+            this.renderToggleBtn.title = "Toggle pretty-print";
+            this.renderToggleBtn.innerHTML = '<img src="/assets/icons/code.svg" alt="Toggle pretty-print">';
             this.renderToggleBtn.addEventListener("click", function (e) {
                 e.stopPropagation();
                 self.prettyMode = !self.prettyMode;

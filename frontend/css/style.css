@@ -285,13 +285,11 @@ body {
 }
 
 .preview-titlebar .render-toggle {
-    color: rgba(255,255,255,0.6);
-    font-size: 11px;
-    font-family: "SFMono-Regular", Consolas, monospace;
+    opacity: 0.6;
 }
 
 .preview-titlebar .render-toggle.active {
-    color: #fff;
+    opacity: 1;
     background: rgba(255,255,255,0.2);
     border-radius: 3px;
 }
