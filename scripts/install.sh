@@ -2,7 +2,17 @@
 set -e
 
 REPO="hayamiz/catscope"
-INSTALL_DIR="${CATSCOPE_INSTALL_DIR:-$HOME/bin}"
+
+# Determine install directory (priority: env var > root > XDG_BIN_HOME > ~/bin)
+if [ -n "$CATSCOPE_INSTALL_DIR" ]; then
+  INSTALL_DIR="$CATSCOPE_INSTALL_DIR"
+elif [ "$(id -u)" -eq 0 ]; then
+  INSTALL_DIR="/usr/local/bin"
+elif [ -n "$XDG_BIN_HOME" ]; then
+  INSTALL_DIR="$XDG_BIN_HOME"
+else
+  INSTALL_DIR="$HOME/bin"
+fi
 
 # Detect platform
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -41,5 +51,5 @@ echo "Installed: ${INSTALL_DIR}/catscope"
 # Check PATH
 case ":$PATH:" in
   *":${INSTALL_DIR}:"*) ;;
-  *) echo "Note: Add ${INSTALL_DIR} to your PATH if not already done." ;;
+  *) echo "WARNING: ${INSTALL_DIR} is not in your PATH. Add it to use catscope from anywhere." ;;
 esac
